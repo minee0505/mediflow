@@ -65,5 +65,20 @@ public class AuthController {
         return ResponseEntity.noContent().build(); // 204 No Content 반환
     }
 
+    /**
+     * 로그아웃 처리
+     * - Access Token 및 Refresh Token 쿠키를 삭제
+     *
+     * @param response HTTP 응답
+     * @return 204 No Content
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        cookieUtil.deleteAccessTokenCookie(response);
+        cookieUtil.deleteRefreshTokenCookie(response);
+        log.info("[AuthController] Logged out: cleared auth cookies");
+        return ResponseEntity.noContent().build();
+    }
+
 }
 
