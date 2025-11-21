@@ -1,12 +1,11 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '4.0.0'
+    id 'org.springframework.boot' version '3.5.6'
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'com.mediflow'
 version = '0.0.1-SNAPSHOT'
-description = 'backend'
 
 java {
     toolchain {
@@ -25,14 +24,55 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
-    compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // Spring Boot Web
+    implementation 'org.springframework.boot:spring-boot-starter-web' // Spring MVC 웹 애플리케이션 구성
+
+    // Spring Boot Data
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // JPA 기반 데이터베이스 연동
+
+    // Spring Security & OAuth2
+    implementation 'org.springframework.boot:spring-boot-starter-security' // Spring Security 인증/인가
+    implementation 'org.springframework.security:spring-security-oauth2-authorization-server' // OAuth2 인증 서버 구현
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client' // OAuth2 클라이언트 (소셜 로그인 등)
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server' // OAuth2 리소스 서버 (JWT 검증 등)
+
+    // Email
+    implementation 'org.springframework.boot:spring-boot-starter-mail' // 이메일 발송 기능
+
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.3' // JWT 토큰 생성/파싱 API
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3' // JWT 구현체
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3' // JWT JSON 처리
+
+    // QueryDSL
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta' // 타입 안전 쿼리 작성
+    annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta' // Q클래스 자동 생성
+    annotationProcessor 'jakarta.persistence:jakarta.persistence-api:3.1.0' // JPA 어노테이션 처리
+
+    // Database
+    runtimeOnly 'com.h2database:h2' // 인메모리 데이터베이스 (개발/테스트용)
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client' // MariaDB JDBC 드라이버 (운영용)
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok' // 보일러플레이트 코드 자동 생성
+    annotationProcessor 'org.projectlombok:lombok' // Lombok 어노테이션 처리
+
+    // Environment Variables
+    implementation 'me.paulschwarz:spring-dotenv:4.0.0' // .env 파일 환경 변수 로딩
+
+    // Development Tools
+    developmentOnly 'org.springframework.boot:spring-boot-devtools' // 자동 재시작, LiveReload 등
+
+    // Testing
+    testImplementation 'org.springframework.boot:spring-boot-starter-test' // 스프링 부트 테스트 도구
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher' // JUnit5 테스트 실행
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+// 개발 환경 설정
+bootRun {
+    args = ['--spring.profiles.active=dev']
 }
