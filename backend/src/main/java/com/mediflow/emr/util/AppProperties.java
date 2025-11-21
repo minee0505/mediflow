@@ -11,4 +11,5 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "app")
 public class AppProperties {
     private String oauth2SuccessRedirectUrl; // application.yml: app.oauth2-success-redirect-url
+    private String oauth2FailureRedirectUrl; // application.yml: app.oauth2-failure-redirect-url
 }
