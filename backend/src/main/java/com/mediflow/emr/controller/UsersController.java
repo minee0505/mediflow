@@ -1,7 +1,7 @@
 package com.mediflow.emr.controller;
 
 import com.mediflow.emr.dto.ApiResponse;
-import com.mediflow.emr.UserResponseDto;
+import com.mediflow.emr.dto.UserResponseDto;
 import com.mediflow.emr.service.UsersService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
