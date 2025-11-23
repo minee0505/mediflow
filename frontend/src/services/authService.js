@@ -11,3 +11,15 @@ export const AuthService = {
     refresh: () => apiClient.post('/auth/refresh', {}, { skipAuthRefresh: true }),
     logout: () => apiClient.post('/auth/logout'),
 };
+
+/*
+ 이메일 인증 서비스:
+ - checkEmail: 이메일 중복 확인 및 인증 코드 발송
+ - verifyCode: 인증 코드 검증
+ - getRemainingTime: 인증 코드 남은 시간 조회
+*/
+export const EmailAuthService = {
+    checkEmail: (email) => apiClient.get('/auth/email/check', { params: { email } }),
+    verifyCode: (email, code) => apiClient.get('/auth/email/verify-code', { params: { email, code } }),
+    getRemainingTime: (email) => apiClient.get('/auth/email/remaining-time', { params: { email } }),
+};

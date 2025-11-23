@@ -5,6 +5,7 @@ export default function EmailLoginPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-sky-50 flex items-center justify-center px-4">
             <div className="w-full max-w-md">
+
                 {/* 로고 섹션 */}
                 <div className="text-center mb-8">
                     <div className="flex justify-center mb-4">

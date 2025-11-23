@@ -30,7 +30,7 @@ const EmailInput = ({ onSuccess }) => {
     const checkEmailDuplicate = async (emailValue) => {
         try {
             setIsChecking(true);
-            const response = await apiClient.get(`/auth/check-email?email=${emailValue}`);
+            const response = await apiClient.get(`/auth/email/check?email=${emailValue}`);
             const { isDuplicate, message } = response.data;
 
             if (isDuplicate) {

@@ -176,6 +176,7 @@ public class EmailAuthService {
                 .orElse(null);
 
         if (verification == null || verification.getIsVerified()) {
+            log.info("인증 정보 없음 또는 이미 인증 완료. email={}", email);
             return 0;
         }
 
@@ -184,11 +185,14 @@ public class EmailAuthService {
 
         // 만료 시간이 지난 경우
         if (now.isAfter(expiryDate)) {
+            log.info("인증 코드 만료됨. email={}", email);
             return 0;
         }
 
         // 남은 시간을 초 단위로 계산
-        return java.time.Duration.between(now, expiryDate).getSeconds();
+        long remainingSeconds = java.time.Duration.between(now, expiryDate).getSeconds();
+        log.info("남은 시간 조회 성공. email={}, remainingSeconds={}", email, remainingSeconds);
+        return remainingSeconds;
     }
 
     /**
