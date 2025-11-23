@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import apiClient from '../../services/apiClient';
 import styles from './EmailInput.module.scss';
 
-const EmailInput = () => {
+const EmailInput = ({ onSuccess }) => {
     const emailRef = useRef();
     const debounceTimerRef = useRef(null);
 
@@ -10,6 +10,7 @@ const EmailInput = () => {
     const [error, setError] = useState('');
     const [email, setEmail] = useState('');
     const [isChecking, setIsChecking] = useState(false);
+    const [isEmailValid, setIsEmailValid] = useState(false);
 
     // 화면이 렌더링되자마자 입력창에 포커싱
     useEffect(() => {
@@ -34,12 +35,15 @@ const EmailInput = () => {
 
             if (isDuplicate) {
                 setError(message || '이미 사용 중인 이메일입니다.');
+                setIsEmailValid(false);
             } else {
                 setError('');
+                setIsEmailValid(true);
             }
         } catch (err) {
             console.error('이메일 중복 확인 실패:', err);
             setError('이메일 중복 확인에 실패했습니다.');
+            setIsEmailValid(false);
         } finally {
             setIsChecking(false);
         }
@@ -49,6 +53,7 @@ const EmailInput = () => {
     const handleEmail = (e) => {
         const inputValue = e.target.value;
         setEmail(inputValue);
+        setIsEmailValid(false); // 이메일 변경 시 유효성 초기화
 
         // 기존 타이머 취소
         if (debounceTimerRef.current) {
@@ -83,12 +88,17 @@ const EmailInput = () => {
             return;
         }
 
-        if (error) {
+        if (error || !isEmailValid) {
             return;
         }
 
-        // TODO: 인증 코드 요청 API 호출
+        // 이메일이 유효하고 중복이 아닌 경우
         console.log('인증 코드 요청:', email);
+
+        // 다음 단계로 이동 (인증 코드 입력 페이지)
+        if (onSuccess) {
+            onSuccess(email);
+        }
     };
 
     return (
@@ -116,7 +126,7 @@ const EmailInput = () => {
                 type='button'
                 className={styles.submitButton}
                 onClick={handleSubmit}
-                disabled={!email || !!error || isChecking}
+                disabled={!email || !!error || isChecking || !isEmailValid}
             >
                 {isChecking ? '확인 중...' : '인증 코드 받기'}
             </button>

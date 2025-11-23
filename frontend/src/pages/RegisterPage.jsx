@@ -1,6 +1,5 @@
-import EmailInput from '../components/auth/EmailInput';
+import SignUpForm from '../components/auth/SignUpForm';
 import mediflowIcon from '../assets/mediflow-icon.svg';
-import { Link } from 'react-router-dom';
 
 export default function RegisterPage() {
     return (
@@ -23,18 +22,7 @@ export default function RegisterPage() {
                         이메일로 회원가입
                     </h2>
                     
-                    <div className="space-y-6">
-                        <EmailInput />
-                        
-                        <div className="text-center pt-4 border-t border-gray-200">
-                            <Link 
-                                to='/'
-                                className="text-gray-500 hover:text-gray-700 text-sm"
-                            >
-                                ← 뒤로 가기
-                            </Link>
-                        </div>
-                    </div>
+                    <SignUpForm />
                 </div>
             </div>
         </div>

@@ -1,105 +1,61 @@
-// SignUpForm.module.scss
-
 .signupForm {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-input, button {
-  width: 50%;
-  padding: 10px;
-  margin: 5px 0;
-  border-radius: 5px;
-}
-
-input {
-  border: 1px solid #ccc;
-}
-
-button {
-  background-color: var(--color-primary-700);
-  color: #000;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: #004494;
-  }
-}
-
-.formStep {
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 1s ease, visibility 0s linear 1s;
+  width: 100%;
 }
 
 .formStepActive {
-  opacity: 1;
-  visibility: visible;
-  transition: opacity 1s ease;
+  animation: fadeIn 0.3s ease-in;
 }
 
-.invalidInput {
-  border-color: #ff0000; // 유효하지 않은 입력을 빨간색 테두리로 표시
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.errorMessage {
-  color: #ffff00; // 경고 메시지를 빨간색으로 표시
-  font-size: 0.8em;
-  text-align: center;
+.infoText {
+  font-size: 0.875rem;
+  color: #4b5563;
+  background-color: #f0f9ff;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid #bae6fd;
+  margin-bottom: 1.5rem;
+
+  font-weight: 600;
+  color: #0369a1;
 }
 
 .codeInputContainer {
   display: flex;
+  gap: 1rem;
   justify-content: center;
-  gap: 10px;
-  margin: 20px 0;
+  margin: 2rem 0;
 }
 
 .codeInput {
-  width: 40px;
-  height: 40px;
-  border: 2px solid #ccc;
+  width: 3.5rem;
+  height: 3.5rem;
   text-align: center;
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 1.5rem;
+  font-weight: 600;
+  border: 2px solid #d1d5db;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
 
   &:focus {
-    border-color: #007bff;
     outline: none;
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
   }
 
-  &::placeholder {
-    color: #ccc;
+  &:disabled {
+    background-color: #f3f4f6;
+    cursor: not-allowed;
   }
 }
 
-.timer {
-  font-family: 'Digital', sans-serif; // 디지털 시계 폰트 사용
-  background-color: #fff;
-  color: #000;
-  border-radius: 5px;
-  padding: 5px 10px;
-  font-size: 20px;
-  text-align: center;
-  margin: 10px 0;
-  display: inline-block;
-  width: auto;
-}
-
-.timerHighlight {
-  color: #fff;
-  background-color: #f44336; // 시간이 얼마 남지 않았을 때 빨간색 배경
-  animation: blink 1s step-start 0s infinite;
-}
-
-@keyframes blink {
-  50% {
-    opacity: 0.5;
-  }
-}
