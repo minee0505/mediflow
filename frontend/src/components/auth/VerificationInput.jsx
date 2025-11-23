@@ -40,6 +40,8 @@ const VerificationInput = ({ email }) => {
             setRemainingSeconds(seconds);
         } catch (error) {
             console.error('남은 시간 조회 실패:', error);
+            // 서버 에러 시에도 기본값을 5분(300초)으로 설정
+            setRemainingSeconds(300);
         }
     };
 
@@ -105,6 +107,70 @@ const VerificationInput = ({ email }) => {
         }
     };
 
+    // 붙여넣기 이벤트 처리
+    const handlePaste = (index, e) => {
+        e.preventDefault();
+
+        // 붙여넣은 텍스트 가져오기
+        const pastedText = e.clipboardData.getData('text');
+
+        // 숫자만 추출
+        const numbers = pastedText.replace(/\D/g, '');
+
+        if (numbers.length === 0) {
+            setError('숫자만 입력해주세요.');
+            return;
+        }
+
+        // 에러 메시지 초기화
+        setError('');
+
+        // 각 칸에 숫자 입력
+        const copyCodes = [...codes];
+        const availableSlots = 4 - index; // 현재 칸부터 사용 가능한 칸 수
+        const numbersToFill = numbers.slice(0, availableSlots);
+
+        for (let i = 0; i < numbersToFill.length; i++) {
+            copyCodes[index + i] = numbersToFill[i];
+            if (inputRefs.current[index + i]) {
+                inputRefs.current[index + i].value = numbersToFill[i];
+            }
+        }
+
+        setCodes(copyCodes);
+
+        // 마지막으로 입력된 칸의 다음 칸으로 포커스 이동
+        const lastFilledIndex = index + numbersToFill.length - 1;
+        if (lastFilledIndex < 3) {
+            focusNextInput(lastFilledIndex + 1);
+        } else {
+            inputRefs.current[lastFilledIndex].blur();
+        }
+    };
+
+    // 키보드 이벤트 처리 (화살표, 백스페이스)
+    const handleKeyDown = (index, e) => {
+        // 왼쪽 화살표: 이전 칸으로 이동
+        if (e.key === 'ArrowLeft' && index > 0) {
+            e.preventDefault();
+            inputRefs.current[index - 1].focus();
+        }
+        // 오른쪽 화살표: 다음 칸으로 이동
+        else if (e.key === 'ArrowRight' && index < 3) {
+            e.preventDefault();
+            inputRefs.current[index + 1].focus();
+        }
+        // 백스페이스: 현재 칸이 비어있으면 이전 칸으로 이동하고 삭제
+        else if (e.key === 'Backspace' && !e.target.value && index > 0) {
+            e.preventDefault();
+            const copyCodes = [...codes];
+            copyCodes[index - 1] = '';
+            setCodes(copyCodes);
+            inputRefs.current[index - 1].value = '';
+            inputRefs.current[index - 1].focus();
+        }
+    };
+
     return (
         <>
             <p className={styles.infoText}>Step 2: 이메일로 전송된 인증번호 4자리를 입력해주세요.</p>
@@ -128,6 +194,8 @@ const VerificationInput = ({ email }) => {
                         className={styles.codeInput}
                         maxLength={1}
                         onChange={(e) => handleNumber(index, e)}
+                        onPaste={(e) => handlePaste(index, e)}
+                        onKeyDown={(e) => handleKeyDown(index, e)}
                         disabled={remainingSeconds === 0}
                     />
                 ))}
