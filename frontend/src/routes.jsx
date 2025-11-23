@@ -3,6 +3,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import EmailLoginPage from './pages/EmailLoginPage.jsx';
+import RegisterPage from './pages/RegisterPage.jsx';
 import AppLayout from './layouts/AppLayout.jsx';
 
 export const router = createBrowserRouter([
@@ -13,6 +14,10 @@ export const router = createBrowserRouter([
     {
         path: '/login',
         element: <EmailLoginPage />, // 이메일 로그인 폼
+    },
+    {
+        path: '/register',
+        element: <RegisterPage />, // 이메일 회원가입
     },
     {
         path: '/app',
