@@ -3,13 +3,15 @@ import { debounce } from 'lodash';
 import styles from './SignUpForm.module.scss';
 import { EmailAuthService } from '../../services/authService';
 
-const VerificationInput = ({ email }) => {
+const VerificationInput = ({ email, onSuccess }) => {
     // 완성된 인증코드를 상태관리
     const [codes, setCodes] = useState(['', '', '', '']);
     // 에러 메시지 상태 관리
     const [error, setError] = useState('');
     // 남은 시간 상태 관리 (초 단위)
     const [remainingSeconds, setRemainingSeconds] = useState(0);
+    // 로딩 상태 관리
+    const [isLoading, setIsLoading] = useState(true);
 
     // ref를 배열로 관리하는 법
     const inputRefs = useRef([]);
@@ -20,11 +22,6 @@ const VerificationInput = ({ email }) => {
     };
 
     useEffect(() => {
-        // 맨 첫번째 칸에 포커싱
-        if (inputRefs.current[0]) {
-            inputRefs.current[0].focus();
-        }
-
         // 초기 남은 시간 조회
         if (email) {
             fetchRemainingTime();
@@ -33,6 +30,7 @@ const VerificationInput = ({ email }) => {
 
     // 남은 시간 조회 함수
     const fetchRemainingTime = async () => {
+        setIsLoading(true);
         try {
             const response = await EmailAuthService.getRemainingTime(email);
             const seconds = response.data.remainingSeconds;
@@ -41,6 +39,14 @@ const VerificationInput = ({ email }) => {
             console.error('남은 시간 조회 실패:', error);
             // 서버 에러 시에도 기본값을 5분(300초)으로 설정
             setRemainingSeconds(300);
+        } finally {
+            setIsLoading(false);
+            // 로딩 완료 후 첫번째 칸에 포커싱
+            setTimeout(() => {
+                if (inputRefs.current[0]) {
+                    inputRefs.current[0].focus();
+                }
+            }, 100);
         }
     };
 
@@ -92,7 +98,11 @@ const VerificationInput = ({ email }) => {
             // 검증 성공시
             setError('');
             console.log('인증 성공!');
-            // TODO: 다음 스텝으로 이동하는 로직 추가
+
+            // 다음 스텝으로 이동
+            if (onSuccess) {
+                onSuccess();
+            }
 
         } catch (error) {
             console.error('인증 코드 검증 실패:', error);
@@ -224,33 +234,49 @@ const VerificationInput = ({ email }) => {
 
     return (
         <>
-            <p className={styles.infoText}>Step 2: 이메일로 전송된 인증번호 4자리를 입력해주세요.</p>
-            {remainingSeconds > 0 && (
-                <p className={styles.timerText}>
-                    남은 시간: <span className={styles.timer}>{formatTime(remainingSeconds)}</span>
-                </p>
+            {isLoading ? (
+                // 로딩 중 스켈레톤 UI
+                <>
+                    <p className={styles.infoText}>Step 2: 이메일로 전송된 인증번호 4자리를 입력해주세요.</p>
+                    <div className={styles.skeletonTimer}></div>
+                    <div className={styles.codeInputContainer}>
+                        {Array.from(new Array(4)).map((_, index) => (
+                            <div key={index} className={styles.skeletonInput}></div>
+                        ))}
+                    </div>
+                </>
+            ) : (
+                // 로딩 완료 후 실제 UI
+                <>
+                    <p className={styles.infoText}>Step 2: 이메일로 전송된 인증번호 4자리를 입력해주세요.</p>
+                    {remainingSeconds > 0 && (
+                        <p className={styles.timerText}>
+                            남은 시간: <span className={styles.timer}>{formatTime(remainingSeconds)}</span>
+                        </p>
+                    )}
+                    {remainingSeconds === 0 && email && (
+                        <p className={styles.expiredText}>인증 시간이 만료되었습니다. 다시 시도해주세요.</p>
+                    )}
+                    {error && <p className={styles.errorMessage}>{error}</p>}
+                    <div className={styles.codeInputContainer}>
+                        {Array.from(new Array(4)).map((_, index) => (
+                            <input
+                                ref={($input) => bindRef($input, index)}
+                                key={index}
+                                type='text'
+                                inputMode='numeric'
+                                pattern='[0-9]'
+                                className={styles.codeInput}
+                                maxLength={1}
+                                onChange={(e) => handleNumber(index, e)}
+                                onPaste={(e) => handlePaste(index, e)}
+                                onKeyDown={(e) => handleKeyDown(index, e)}
+                                disabled={remainingSeconds === 0}
+                            />
+                        ))}
+                    </div>
+                </>
             )}
-            {remainingSeconds === 0 && email && (
-                <p className={styles.expiredText}>인증 시간이 만료되었습니다. 다시 시도해주세요.</p>
-            )}
-            {error && <p className={styles.errorMessage}>{error}</p>}
-            <div className={styles.codeInputContainer}>
-                {Array.from(new Array(4)).map((_, index) => (
-                    <input
-                        ref={($input) => bindRef($input, index)}
-                        key={index}
-                        type='text'
-                        inputMode='numeric'
-                        pattern='[0-9]'
-                        className={styles.codeInput}
-                        maxLength={1}
-                        onChange={(e) => handleNumber(index, e)}
-                        onPaste={(e) => handlePaste(index, e)}
-                        onKeyDown={(e) => handleKeyDown(index, e)}
-                        disabled={remainingSeconds === 0}
-                    />
-                ))}
-            </div>
         </>
     );
 };
