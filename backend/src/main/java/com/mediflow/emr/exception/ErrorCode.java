@@ -16,9 +16,13 @@ public enum ErrorCode {
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "unauthorized"),
     FORBIDDEN(HttpStatus.FORBIDDEN, "forbidden"),
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "bad request"),
-    INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "internal error");
+    INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "internal error"),
+
+    // 이메일 인증 관련 에러 코드
+    VERIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "verification not found"),
+    VERIFICATION_EXPIRED(HttpStatus.BAD_REQUEST, "verification code expired"),
+    VERIFICATION_INVALID(HttpStatus.BAD_REQUEST, "verification code invalid");
 
     private final HttpStatus status;
     private final String defaultMessage;
 }
-

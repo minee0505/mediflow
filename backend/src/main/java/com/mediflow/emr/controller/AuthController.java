@@ -1,6 +1,7 @@
 package com.mediflow.emr.controller;
 
 
+import com.mediflow.emr.service.UsersService;
 import com.mediflow.emr.util.CookieUtil;
 import com.mediflow.emr.util.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +30,7 @@ public class AuthController {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final CookieUtil cookieUtil;
+    private final UsersService usersService;
 
     /**
      * Refresh Token을 검증하고 새 Access Token을 발급
@@ -78,6 +81,23 @@ public class AuthController {
         cookieUtil.deleteRefreshTokenCookie(response);
         log.info("[AuthController] Logged out: cleared auth cookies");
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * 이메일 중복 검사 API
+     *
+     * @param email 검사할 이메일 주소
+     * @return 중복 여부 및 메시지
+     */
+    @GetMapping("/check-email")
+    public ResponseEntity<?> checkEmail(String email) {
+        boolean isDuplicate = usersService.checkEmailDuplicate(email);
+        String message = isDuplicate ? "이메일이 중복되었습니다." : "사용 가능한 이메일입니다.";
+
+        return ResponseEntity.ok().body(Map.of(
+                "isDuplicate", isDuplicate,
+                "message", message
+        ));
     }
 
 }

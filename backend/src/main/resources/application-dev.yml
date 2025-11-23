@@ -17,6 +17,20 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.H2Dialect
 
+  # 이메일 설정 (Naver 기준)
+  mail:
+    host: smtp.naver.com
+    port: 465
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+
   security:
     oauth2:
       client:
