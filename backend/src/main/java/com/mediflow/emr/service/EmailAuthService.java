@@ -1,8 +1,11 @@
 package com.mediflow.emr.service;
 
+import com.mediflow.emr.dto.EmailSignupRequest;
 import com.mediflow.emr.entity.EmailVerification;
 import com.mediflow.emr.entity.Provider;
 import com.mediflow.emr.entity.User;
+import com.mediflow.emr.exception.BusinessException;
+import com.mediflow.emr.exception.ErrorCode;
 import com.mediflow.emr.repository.EmailVerificationRepository;
 import com.mediflow.emr.repository.UserRepository;
 import jakarta.mail.internet.MimeMessage;
@@ -11,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +25,7 @@ import java.time.LocalDateTime;
  * - 이메일 중복 확인
  * - 인증 코드 발송
  * - 인증 코드 검증
+ * - 회원가입 완료 처리
  */
 @Slf4j
 @Service
@@ -31,6 +36,7 @@ public class EmailAuthService {
     private final UserRepository userRepository;
     private final EmailVerificationRepository emailVerificationRepository;
     private final JavaMailSender mailSender;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${spring.mail.username}")
     private String mailHost;
@@ -229,5 +235,59 @@ public class EmailAuthService {
     private String generateCode() {
         return String.valueOf((int) (Math.random() * 9000) + 1000);
     }
-}
 
+    /**
+     * 회원가입 완료 처리
+     * - 이메일 인증이 완료된 사용자의 비밀번호를 설정하고 회원가입을 완료
+     *
+     * @param dto 이메일과 비밀번호
+     */
+    public void completeSignup(EmailSignupRequest dto) {
+        String email = dto.email();
+        String password = dto.password();
+
+        log.info("회원가입 완료 처리 시작. email={}", email);
+
+        // 1. 이메일 인증 확인
+        EmailVerification verification = emailVerificationRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    log.error("인증 정보를 찾을 수 없음. email={}", email);
+                    return new BusinessException(ErrorCode.EMAIL_NOT_VERIFIED);
+                });
+
+        if (!verification.getIsVerified()) {
+            log.warn("이메일 인증이 완료되지 않음. email={}", email);
+            throw new BusinessException(ErrorCode.EMAIL_NOT_VERIFIED);
+        }
+
+        log.info("이메일 인증 확인 완료. email={}", email);
+
+        // 2. 사용자 정보 조회
+        User user = verification.getUser();
+        if (user == null) {
+            log.error("인증 정보는 있지만 사용자 정보가 없음. email={}", email);
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        log.info("사용자 정보 조회 완료. userId={}, email={}", user.getId(), email);
+
+        // 3. 비밀번호 암호화 및 설정
+        String encodedPassword = passwordEncoder.encode(password);
+        user.setPassword(encodedPassword);
+        log.info("비밀번호 암호화 및 설정 완료. email={}", email);
+
+        // 4. 이메일 인증 완료 처리
+        user.completeVerifying();
+        log.info("이메일 인증 완료 처리. email={}", email);
+
+        // 5. 사용자 정보 저장 (명시적으로 저장)
+        userRepository.save(user);
+        log.info("사용자 정보 저장 완료. userId={}, email={}", user.getId(), email);
+
+        // 6. 인증 정보 삭제 (더 이상 필요 없음)
+        emailVerificationRepository.delete(verification);
+        log.info("인증 정보 삭제 완료. email={}", email);
+
+        log.info("회원가입 완료. email={}, userId={}", email, user.getId());
+    }
+}

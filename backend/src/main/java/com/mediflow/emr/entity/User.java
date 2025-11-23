@@ -158,8 +158,18 @@ public class User extends BaseTimeEntity {
     }
 
     /**
+     * 비밀번호를 설정합니다.
+     *
+     * @param encodedPassword 암호화된 비밀번호
+     */
+    public void setPassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
+    /**
      * 이메일 인증 완료 여부를 업데이트합니다.
      */
     @Column(nullable = false)
-    private boolean emailVerified;
+    @Builder.Default
+    private boolean emailVerified = false;
 }

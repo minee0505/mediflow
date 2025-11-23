@@ -1,5 +1,7 @@
 package com.mediflow.emr.controller;
 
+import com.mediflow.emr.dto.EmailSignupRequest;
+import com.mediflow.emr.service.EmailAuthService;
 import com.mediflow.emr.util.CookieUtil;
 import com.mediflow.emr.util.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
@@ -10,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,6 +22,7 @@ import java.util.Map;
  * OAuth2 인증 관련 API 컨트롤러
  * - JWT 토큰 관리 (갱신/로그아웃)
  * - Google, Kakao 소셜 로그인 지원
+ * - 이메일 회원가입
  */
 @RestController
 @RequestMapping("/api/auth")
@@ -28,6 +32,7 @@ public class AuthController {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final CookieUtil cookieUtil;
+    private final EmailAuthService emailAuthService;
 
     /**
      * Refresh Token을 검증하고 새 Access Token을 발급
@@ -81,6 +86,25 @@ public class AuthController {
 
         log.info("[AuthController] Logged out: cleared auth cookies");
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * 이메일 회원가입 완료 처리
+     * - 이메일 인증이 완료된 사용자의 회원가입을 처리
+     *
+     * @param dto 이메일과 비밀번호를 포함한 회원가입 요청
+     * @return 200 OK with success message
+     */
+    @PostMapping("/join")
+    public ResponseEntity<?> join(@RequestBody EmailSignupRequest dto) {
+        log.info("[AuthController] 회원가입 요청: email={}", dto.email());
+
+        emailAuthService.completeSignup(dto);
+
+        log.info("[AuthController] 회원가입 완료: email={}", dto.email());
+        return ResponseEntity.ok().body(Map.of(
+                "message", "회원가입이 완료되었습니다."
+        ));
     }
 
 }

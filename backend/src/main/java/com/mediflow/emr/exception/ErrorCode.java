@@ -21,7 +21,8 @@ public enum ErrorCode {
     // 이메일 인증 관련 에러 코드
     VERIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "verification not found"),
     VERIFICATION_EXPIRED(HttpStatus.BAD_REQUEST, "verification code expired"),
-    VERIFICATION_INVALID(HttpStatus.BAD_REQUEST, "verification code invalid");
+    VERIFICATION_INVALID(HttpStatus.BAD_REQUEST, "verification code invalid"),
+    EMAIL_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "email not verified");
 
     private final HttpStatus status;
     private final String defaultMessage;
