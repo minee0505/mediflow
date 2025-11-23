@@ -48,17 +48,89 @@ public class EmailAuthService {
      * @param email 검증할 이메일
      * @return true: 중복됨, false: 사용 가능
      */
-    @Transactional(readOnly = true)
     public boolean checkEmailDuplicate(String email) {
+        log.info("[checkEmailDuplicate] 시작. email={}", email);
+
         // 중복 확인
         boolean isDuplicate = userRepository.existsByEmail(email);
+        log.info("[checkEmailDuplicate] 중복 확인 결과. email={}, isDuplicate={}", email, isDuplicate);
+
+        // 이메일이 중복되었지만 회원가입이 마무리되지 않은 회원은
+        // 중복을 무시하고 인증코드를 재발송
+        if (isDuplicate && isSignupNotFinished(email)) {
+            log.info("[checkEmailDuplicate] 회원가입 미완료 회원 - false 반환. email={}", email);
+            return false;
+        }
 
         // 사용 가능한 이메일인 경우 인증 메일 발송
         if (!isDuplicate) {
+            log.info("[checkEmailDuplicate] 사용 가능한 이메일 - 임시 회원가입 및 인증 메일 발송. email={}", email);
             processSignup(email);
         }
 
+        log.info("[checkEmailDuplicate] 최종 반환 값. email={}, isDuplicate={}", email, isDuplicate);
         return isDuplicate;
+    }
+
+    /**
+     * 회원가입이 완료되지 않은 회원인지 확인하고 인증코드 재발송
+     *
+     * @param email 사용자 이메일
+     * @return true: 회원가입 미완료 회원, false: 회원가입 완료 회원
+     */
+    private boolean isSignupNotFinished(String email) {
+        // 회원가입이 중단된 회원정보를 조회
+        User foundUser = userRepository.findByEmail(email).orElse(null);
+
+        if (foundUser == null) {
+            return false;
+        }
+
+        // 실제로 중단된 회원인지 재확인
+        // 이메일 인증이 완료되지 않았거나 비밀번호가 설정되지 않은 경우
+        if (!foundUser.isEmailVerified() || foundUser.getPassword() == null) {
+            log.info("회원가입 미완료 회원 발견. email={}, emailVerified={}, hasPassword={}",
+                email, foundUser.isEmailVerified(), foundUser.getPassword() != null);
+
+            // 인증코드 재생성하고 이메일을 발송
+            EmailVerification existingVerification = emailVerificationRepository.findByEmail(email)
+                    .orElse(null);
+
+            // 1. 인증코드를 과거에 받은 경우 - UPDATE
+            if (existingVerification != null) {
+                log.info("기존 인증 정보 발견. 인증코드 재발급. email={}", email);
+                updateVerificationCode(email, existingVerification);
+            } else {
+                // 2. 받지 않은 경우 - 인증을 끝내면 인증코드가 삭제됨 - INSERT
+                log.info("기존 인증 정보 없음. 새 인증코드 생성. email={}", email);
+                generateAndSendCode(email, foundUser);
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 새로운 인증코드 생성 및 발송
+     *
+     * @param email 사용자 이메일
+     * @param user 사용자 정보
+     */
+    private void generateAndSendCode(String email, User user) {
+        // 인증 메일 발송
+        String code = sendVerificationEmail(email);
+
+        // 인증 코드와 만료시간을 DB에 저장
+        EmailVerification verification = EmailVerification.builder()
+                .email(email)
+                .verificationCode(code)
+                .expiryDate(LocalDateTime.now().plusMinutes(5)) // 만료시간 5분 설정
+                .user(user) // FK 설정
+                .build();
+        emailVerificationRepository.save(verification);
+
+        log.info("새 인증코드 생성 및 저장 완료. email={}", email);
     }
 
     /**
@@ -77,17 +149,8 @@ public class EmailAuthService {
 
         User savedUser = userRepository.save(tempUser);
 
-        // 2. 인증 메일 발송
-        String code = sendVerificationEmail(email);
-
-        // 3. 인증 코드와 만료시간을 DB에 저장
-        EmailVerification verification = EmailVerification.builder()
-                .email(email)
-                .verificationCode(code)
-                .expiryDate(LocalDateTime.now().plusMinutes(5)) // 만료시간 5분 설정
-                .user(savedUser) // FK 설정
-                .build();
-        emailVerificationRepository.save(verification);
+        // 2. 인증 메일 발송 및 인증 정보 저장
+        generateAndSendCode(email, savedUser);
     }
 
     /**
@@ -313,17 +376,18 @@ public class EmailAuthService {
                     return new BusinessException(ErrorCode.USER_NOT_FOUND);
                 });
 
-        // 2. 비밀번호 검증
+        // 2. 회원가입을 중단한 회원에 대해서 체크
+        if (!user.isEmailVerified() || user.getPassword() == null) {
+            log.warn("회원가입이 완료되지 않은 회원. email={}", email);
+            throw new BusinessException(ErrorCode.EMAIL_NOT_VERIFIED);
+        }
+
+        // 3. 비밀번호 검증
         if (!passwordEncoder.matches(password, user.getPassword())) {
             log.warn("비밀번호 불일치. email={}", email);
             throw new BusinessException(ErrorCode.UNAUTHORIZED);
         }
 
-        // 3. 이메일 인증 완료 여부 확인
-        if (!user.isEmailVerified()) {
-            log.warn("이메일 인증이 완료되지 않음. email={}", email);
-            throw new BusinessException(ErrorCode.EMAIL_NOT_VERIFIED);
-        }
 
         // 4. 계정 활성화 상태 확인
         if (!user.getIsActive()) {

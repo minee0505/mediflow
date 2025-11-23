@@ -101,6 +101,7 @@ const EmailInput = ({ onSuccess }) => {
         }
     };
 
+
     return (
         <div className={styles.container}>
             <div className={styles.infoBox}>
