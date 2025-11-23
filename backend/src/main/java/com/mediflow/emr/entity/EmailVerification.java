@@ -7,8 +7,8 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Getter
-@ToString
-@EqualsAndHashCode
+@ToString(exclude = "user")
+@EqualsAndHashCode(exclude = "user")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -34,6 +34,10 @@ public class EmailVerification extends BaseTimeEntity {
     @Column(nullable = false)
     @Builder.Default
     private Boolean isVerified = false; // 인증 완료 여부
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user; // 인증을 진행하는 사용자
 
     /**
      * 인증 코드가 유효한지 확인
