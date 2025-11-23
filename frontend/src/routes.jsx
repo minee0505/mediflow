@@ -4,6 +4,8 @@ import App from './App.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import EmailLoginPage from './pages/EmailLoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
+import TermsOfServicePage from './pages/TermsOfServicePage.jsx';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage.jsx';
 import AppLayout from './layouts/AppLayout.jsx';
 
 export const router = createBrowserRouter([
@@ -22,6 +24,14 @@ export const router = createBrowserRouter([
     {
         path: '/sign-up',
         element: <RegisterPage />, // 이메일 회원가입 (별칭)
+    },
+    {
+        path: '/terms',
+        element: <TermsOfServicePage />, // 이용약관
+    },
+    {
+        path: '/privacy',
+        element: <PrivacyPolicyPage />, // 개인정보처리방침
     },
     {
         path: '/app',

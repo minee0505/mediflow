@@ -80,13 +80,19 @@ export default function LoginPage() {
                 {/* 하단 텍스트 */}
                 <p className="text-center text-sm text-gray-500 mt-8">
                     로그인하시면{' '}
-                    <a href="#" className="text-sky-600 hover:text-sky-700 font-medium">
+                    <button
+                        onClick={() => navigate('/terms')}
+                        className="text-sky-600 hover:text-sky-700 font-medium underline"
+                    >
                         이용약관
-                    </a>
+                    </button>
                     과{' '}
-                    <a href="#" className="text-sky-600 hover:text-sky-700 font-medium">
+                    <button
+                        onClick={() => navigate('/privacy')}
+                        className="text-sky-600 hover:text-sky-700 font-medium underline"
+                    >
                         개인정보처리방침
-                    </a>
+                    </button>
                     에 동의하는 것으로 간주됩니다.
                 </p>
             </div>
