@@ -31,32 +31,42 @@ const PasswordInput = ({ onPasswordChange }) => {
         const newPassword = e.target.value;
         setPassword(newPassword);
 
-        // 비밀번호 강도 계산
-        const strength = calculatePasswordStrength(newPassword);
-        setPasswordStrength(strength);
-
         // 비밀번호가 비어있으면 에러 메시지를 표시하지 않음
         if (newPassword.length === 0) {
             setErrorMessage('');
+            setPasswordStrength(0);
             if (onPasswordChange) {
-                onPasswordChange(newPassword, false);
+                onPasswordChange(newPassword, false, 0);
             }
             return;
         }
 
-        if (validatePassword(newPassword)) {
+        // 비밀번호 유효성 검증
+        const isValid = validatePassword(newPassword);
+
+        // 비밀번호 강도 계산
+        let strength = calculatePasswordStrength(newPassword);
+
+        // 유효하지 않은 비밀번호는 강도를 최대 2(약함)로 제한
+        if (!isValid && strength > 2) {
+            strength = 2;
+        }
+
+        setPasswordStrength(strength);
+
+        if (isValid) {
             setErrorMessage('');
-            // 부모 컴포넌트에 유효한 비밀번호 전달
+            // 부모 컴포넌트에 유효한 비밀번호와 강도 전달
             if (onPasswordChange) {
-                onPasswordChange(newPassword, true);
+                onPasswordChange(newPassword, true, strength);
             }
         } else {
             setErrorMessage(
                 '비밀번호는 8자 이상이며, 숫자, 문자, 특수문자를 모두 포함해야 합니다.'
             );
-            // 부모 컴포넌트에 유효하지 않은 비밀번호 전달
+            // 부모 컴포넌트에 유효하지 않은 비밀번호와 강도 전달
             if (onPasswordChange) {
-                onPasswordChange(newPassword, false);
+                onPasswordChange(newPassword, false, strength);
             }
         }
     };

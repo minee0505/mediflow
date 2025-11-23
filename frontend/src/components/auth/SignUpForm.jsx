@@ -13,6 +13,7 @@ const SignUpForm = () => {
     // 비밀번호 상태 관리
     const [password, setPassword] = useState('');
     const [isPasswordValid, setIsPasswordValid] = useState(false);
+    const [passwordStrength, setPasswordStrength] = useState(0);
 
     // 이메일 중복확인이 끝날때 호출될 함수
     const emailSuccessHandler = (verifiedEmail) => {
@@ -26,9 +27,16 @@ const SignUpForm = () => {
     };
 
     // 비밀번호 변경 핸들러
-    const passwordChangeHandler = (newPassword, isValid) => {
+    const passwordChangeHandler = (newPassword, isValid, strength) => {
         setPassword(newPassword);
         setIsPasswordValid(isValid);
+        setPasswordStrength(strength);
+    };
+
+    // 회원가입 완료 버튼 클릭 핸들러
+    const handleSignUpComplete = () => {
+        // TODO: 회원가입 API 호출
+        console.log('회원가입 완료:', { email, password });
     };
 
     return (
@@ -36,7 +44,20 @@ const SignUpForm = () => {
             <div className={styles.formStepActive}>
                 {step === 1 && <EmailInput onSuccess={emailSuccessHandler} />}
                 {step === 2 && <VerificationInput email={email} onSuccess={verificationSuccessHandler} />}
-                {step === 3 && <PasswordInput onPasswordChange={passwordChangeHandler} />}
+                {step === 3 && (
+                    <>
+                        <PasswordInput onPasswordChange={passwordChangeHandler} />
+                        {/* 비밀번호 강도가 3 이상(보통 이상)일 때만 회원가입 버튼 표시 */}
+                        {passwordStrength >= 3 && (
+                            <button
+                                className={styles.signUpCompleteBtn}
+                                onClick={handleSignUpComplete}
+                            >
+                                회원가입 완료
+                            </button>
+                        )}
+                    </>
+                )}
             </div>
 
             <div className="text-center mt-6">
