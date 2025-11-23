@@ -18,10 +18,12 @@ export const AuthService = {
  - verifyCode: 인증 코드 검증
  - getRemainingTime: 인증 코드 남은 시간 조회
  - signup: 회원가입 완료
+ - login: 이메일 로그인
 */
 export const EmailAuthService = {
     checkEmail: (email) => apiClient.get('/auth/email/check', { params: { email } }),
     verifyCode: (email, code) => apiClient.get('/auth/email/verify-code', { params: { email, code } }),
     getRemainingTime: (email) => apiClient.get('/auth/email/remaining-time', { params: { email } }),
     signup: (email, password) => apiClient.post('/auth/join', { email, password }),
+    login: (email, password) => apiClient.post('/auth/email/login', { email, password }),
 };

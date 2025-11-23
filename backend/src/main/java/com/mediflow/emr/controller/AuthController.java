@@ -1,6 +1,8 @@
 package com.mediflow.emr.controller;
 
+import com.mediflow.emr.dto.EmailLoginRequest;
 import com.mediflow.emr.dto.EmailSignupRequest;
+import com.mediflow.emr.entity.User;
 import com.mediflow.emr.service.EmailAuthService;
 import com.mediflow.emr.util.CookieUtil;
 import com.mediflow.emr.util.JwtTokenProvider;
@@ -104,6 +106,38 @@ public class AuthController {
         log.info("[AuthController] 회원가입 완료: email={}", dto.email());
         return ResponseEntity.ok().body(Map.of(
                 "message", "회원가입이 완료되었습니다."
+        ));
+    }
+
+    /**
+     * 이메일 로그인 처리
+     * - 이메일과 비밀번호로 로그인하고 JWT 토큰 발급
+     *
+     * @param dto 이메일과 비밀번호를 포함한 로그인 요청
+     * @param response HTTP 응답 (쿠키 설정용)
+     * @return 200 OK with success message
+     */
+    @PostMapping("/email/login")
+    public ResponseEntity<?> emailLogin(@RequestBody EmailLoginRequest dto, HttpServletResponse response) {
+        log.info("[AuthController] 이메일 로그인 요청: email={}", dto.email());
+
+        // 1. 이메일/비밀번호 검증 및 사용자 조회
+        User user = emailAuthService.loginWithEmail(dto);
+
+        // 2. JWT 토큰 생성 (providerId를 subject로 사용)
+        String subject = user.getProviderId();
+        String accessToken = jwtTokenProvider.createAccessToken(subject, Map.of());
+        String refreshToken = jwtTokenProvider.createRefreshToken(subject);
+
+        // 3. 쿠키에 토큰 설정
+        cookieUtil.addAccessTokenCookie(response, accessToken);
+        cookieUtil.addRefreshTokenCookie(response, refreshToken);
+
+        log.info("[AuthController] 이메일 로그인 성공: email={}, userId={}", dto.email(), user.getId());
+
+        return ResponseEntity.ok().body(Map.of(
+                "message", "로그인 성공",
+                "redirectUrl", "/app"
         ));
     }
 

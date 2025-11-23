@@ -1,5 +1,6 @@
 package com.mediflow.emr.service;
 
+import com.mediflow.emr.dto.EmailLoginRequest;
 import com.mediflow.emr.dto.EmailSignupRequest;
 import com.mediflow.emr.entity.EmailVerification;
 import com.mediflow.emr.entity.Provider;
@@ -289,5 +290,54 @@ public class EmailAuthService {
         log.info("인증 정보 삭제 완료. email={}", email);
 
         log.info("회원가입 완료. email={}, userId={}", email, user.getId());
+    }
+
+    /**
+     * 이메일 로그인 처리
+     * - 이메일과 비밀번호를 검증하고 사용자 정보 반환
+     *
+     * @param dto 이메일과 비밀번호
+     * @return 로그인한 사용자 정보
+     */
+    @Transactional(readOnly = true)
+    public User loginWithEmail(EmailLoginRequest dto) {
+        String email = dto.email();
+        String password = dto.password();
+
+        log.info("이메일 로그인 시도. email={}", email);
+
+        // 1. 이메일로 사용자 조회
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    log.warn("존재하지 않는 이메일. email={}", email);
+                    return new BusinessException(ErrorCode.USER_NOT_FOUND);
+                });
+
+        // 2. 비밀번호 검증
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            log.warn("비밀번호 불일치. email={}", email);
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // 3. 이메일 인증 완료 여부 확인
+        if (!user.isEmailVerified()) {
+            log.warn("이메일 인증이 완료되지 않음. email={}", email);
+            throw new BusinessException(ErrorCode.EMAIL_NOT_VERIFIED);
+        }
+
+        // 4. 계정 활성화 상태 확인
+        if (!user.getIsActive()) {
+            log.warn("비활성화된 계정. email={}", email);
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+        }
+
+        // 5. 계정 잠금 상태 확인
+        if (user.getIsLocked()) {
+            log.warn("잠긴 계정. email={}", email);
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+        }
+
+        log.info("이메일 로그인 성공. email={}, userId={}", email, user.getId());
+        return user;
     }
 }
