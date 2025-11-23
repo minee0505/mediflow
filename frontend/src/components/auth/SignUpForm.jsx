@@ -4,6 +4,7 @@ import styles from './SignUpForm.module.scss';
 import EmailInput from './EmailInput.jsx';
 import VerificationInput from './VerificationInput.jsx';
 import PasswordInput from './PasswordInput.jsx';
+import SuccessModal from '../common/SuccessModal.jsx';
 import { EmailAuthService } from '../../services/authService.js';
 
 const SignUpForm = () => {
@@ -20,6 +21,8 @@ const SignUpForm = () => {
     // 로딩 상태 관리
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+    // 성공 모달 상태 관리
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     // 이메일 중복확인이 끝날때 호출될 함수
     const emailSuccessHandler = (verifiedEmail) => {
@@ -49,9 +52,8 @@ const SignUpForm = () => {
             const response = await EmailAuthService.signup(email, password);
             console.log('회원가입 성공:', response.data);
 
-            // 회원가입 성공 시 메인 페이지로 이동
-            alert('회원가입이 완료되었습니다!');
-            navigate('/');
+            // 성공 모달 표시
+            setShowSuccessModal(true);
         } catch (error) {
             console.error('회원가입 실패:', error);
             console.error('에러 응답:', error.response);
@@ -67,8 +69,21 @@ const SignUpForm = () => {
         }
     };
 
+    // 성공 모달이 닫힐 때 메인 페이지로 이동
+    const handleModalClose = () => {
+        setShowSuccessModal(false);
+        navigate('/');
+    };
+
     return (
         <div className={styles.signupForm}>
+            {showSuccessModal && (
+                <SuccessModal
+                    message="회원가입이 완료되었습니다!"
+                    onClose={handleModalClose}
+                />
+            )}
+
             <div className={styles.formStepActive}>
                 {step === 1 && <EmailInput onSuccess={emailSuccessHandler} />}
                 {step === 2 && <VerificationInput email={email} onSuccess={verificationSuccessHandler} />}
