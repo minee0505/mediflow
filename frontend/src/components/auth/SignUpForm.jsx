@@ -106,10 +106,10 @@ const SignUpForm = () => {
                 )}
             </div>
 
-            <div className="text-center mt-6">
+            <div className={styles.backLinkContainer}>
                 <Link
                     to='/'
-                    className="text-gray-500 hover:text-gray-700 text-sm"
+                    className={styles.backLink}
                 >
                     ← 뒤로 가기
                 </Link>
