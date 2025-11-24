@@ -1,6 +1,8 @@
 package com.mediflow.emr.entity;
 
 
+import com.mediflow.emr.entity.enums.Provider;
+import com.mediflow.emr.entity.enums.Role;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -51,9 +53,9 @@ public class User extends BaseTimeEntity {
     @Builder.Default
     private Role role = Role.USER;
 
-    @Enumerated(EnumType.STRING)
-    @Column(length = 30)
-    private Department department;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id")
+    private DepartmentEntity department;
 
     @Column(nullable = false)
     @Builder.Default
@@ -111,7 +113,7 @@ public class User extends BaseTimeEntity {
      *
      * @param department 새로운 부서
      */
-    public void updateDepartment(Department department) {
+    public void updateDepartment(DepartmentEntity department) {
         this.department = department;
     }
 

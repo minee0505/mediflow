@@ -1,4 +1,4 @@
-package com.mediflow.emr.entity;
+package com.mediflow.emr.entity.enums;
 
 public enum Provider {
     GOOGLE,

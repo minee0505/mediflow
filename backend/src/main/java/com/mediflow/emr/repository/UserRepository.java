@@ -1,7 +1,7 @@
 package com.mediflow.emr.repository;
 
 import com.mediflow.emr.entity.User;
-import com.mediflow.emr.entity.Provider;
+import com.mediflow.emr.entity.enums.Provider;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

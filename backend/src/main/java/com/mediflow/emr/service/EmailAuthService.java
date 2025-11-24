@@ -3,7 +3,7 @@ package com.mediflow.emr.service;
 import com.mediflow.emr.dto.EmailLoginRequest;
 import com.mediflow.emr.dto.EmailSignupRequest;
 import com.mediflow.emr.entity.EmailVerification;
-import com.mediflow.emr.entity.Provider;
+import com.mediflow.emr.entity.enums.Provider;
 import com.mediflow.emr.entity.User;
 import com.mediflow.emr.exception.BusinessException;
 import com.mediflow.emr.exception.ErrorCode;

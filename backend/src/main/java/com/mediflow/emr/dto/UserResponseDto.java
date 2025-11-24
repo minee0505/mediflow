@@ -1,6 +1,6 @@
 package com.mediflow.emr.dto;
 
-import com.mediflow.emr.entity.Provider;
+import com.mediflow.emr.entity.enums.Provider;
 import com.mediflow.emr.entity.User;
 import lombok.Builder;
 import lombok.Getter;

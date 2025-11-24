@@ -1,5 +1,8 @@
-package com.mediflow.emr.entity;
+package com.mediflow.emr.entity.enums;
 
+/**
+ * 부서/진료과 구분
+ */
 public enum Department {
     EMERGENCY("응급실"),
     INTERNAL_MEDICINE("내과"),
@@ -17,6 +20,9 @@ public enum Department {
     ANESTHESIOLOGY("마취통증의학과"),
     REHABILITATION("재활의학과"),
     FAMILY_MEDICINE("가정의학과"),
+    ICU("중환자실"),
+    OR("수술실"),
+    DIALYSIS("투석실"),
     NONE("부서 없음");
 
     private final String koreanName;
@@ -29,4 +35,3 @@ public enum Department {
         return koreanName;
     }
 }
-

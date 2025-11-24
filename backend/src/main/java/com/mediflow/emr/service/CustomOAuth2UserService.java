@@ -1,6 +1,6 @@
 package com.mediflow.emr.service;
 
-import com.mediflow.emr.entity.Provider;
+import com.mediflow.emr.entity.enums.Provider;
 import com.mediflow.emr.entity.User;
 import com.mediflow.emr.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
