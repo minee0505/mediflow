@@ -1,0 +1,88 @@
+.patientDetail {
+  background: white;
+  border-radius: 12px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #9ca3af;
+
+  .icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+  }
+
+  .message {
+    font-size: 16px;
+  }
+}
+
+.header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+
+  .patientName {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 8px;
+  }
+
+  .patientMeta {
+    font-size: 14px;
+    color: #6b7280;
+  }
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+
+  .tab {
+    padding: 10px 20px;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    &.active {
+      background: white;
+      color: #0284c7;
+      font-weight: 600;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+  }
+}
+
+.content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+
+  .comingSoon {
+    text-align: center;
+    color: #9ca3af;
+    padding: 40px;
+    font-size: 14px;
+  }
+}

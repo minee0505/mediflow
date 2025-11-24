@@ -1,0 +1,132 @@
+.patientCard {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+
+  &.selected {
+    border-color: #0284c7;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+  }
+
+  &.primary {
+    border-left: 4px solid #0284c7;
+  }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.patientInfo {
+  flex: 1;
+
+  .name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 4px;
+  }
+
+  .meta {
+    font-size: 14px;
+    color: #6b7280;
+  }
+}
+
+.badges {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.allergyBadge {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.triageBadge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+
+  &.level1 {
+    background: #dc2626; // 빨강 - 즉시
+  }
+
+  &.level2 {
+    background: #f97316; // 주황 - 긴급
+  }
+
+  &.level3 {
+    background: #eab308; // 노랑 - 응급
+  }
+
+  &.level4 {
+    background: #10b981; // 초록 - 준응급
+  }
+
+  &.level5 {
+    background: #0284c7; // 파랑 - 비응급
+  }
+}
+
+.diagnosis {
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 12px;
+  padding: 8px;
+  background: #f9fafb;
+  border-radius: 6px;
+}
+
+.vitals {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  font-size: 13px;
+
+  .vitalItem {
+    display: flex;
+    flex-direction: column;
+    padding: 6px;
+    background: #f3f4f6;
+    border-radius: 6px;
+
+    .label {
+      color: #6b7280;
+      font-size: 11px;
+      margin-bottom: 2px;
+    }
+
+    .value {
+      color: #1f2937;
+      font-weight: 600;
+    }
+  }
+}
+
+.noVitals {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 13px;
+  padding: 8px;
+}
