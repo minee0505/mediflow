@@ -1,17 +1,16 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import AppHeader from '../components/AppHeader.jsx';
-import AppFooter from '../components/AppFooter.jsx';
+import AppHeader from '../components/layout/AppHeader';
+import AppFooter from '../components/layout/AppFooter';
+import styles from './AppLayout.module.scss';
 
 const AppLayout = () => {
     return (
-        <div className='min-h-screen flex flex-col'>
+        <div className={styles.appLayout}>
             <AppHeader />
-
-            <main className='flex-1'>
+            <main className={styles.main}>
                 <Outlet />
             </main>
-
             <AppFooter />
         </div>
     );

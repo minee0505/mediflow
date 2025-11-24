@@ -1,18 +1,10 @@
+/**
+ * 이 파일은 현재 사용되지 않습니다.
+ * 실제 라우팅은 routes.jsx에서 처리되며,
+ * /app 경로는 AppLayout 컴포넌트를 사용합니다.
+ */
 const App = () => {
-    return (
-        <div className='min-h-screen bg-gray-50'>
-            <div className='container mx-auto px-4 py-8'>
-                <div className='text-center'>
-                    <h1 className='text-4xl font-bold text-gray-900 mb-4'>
-                        MediFlow
-                    </h1>
-                    <p className='text-lg text-gray-600 mb-8'>
-                        메인 화면입니다.
-                    </p>
-                </div>
-            </div>
-        </div>
-    );
+    return <></>;
 };
 
 export default App;

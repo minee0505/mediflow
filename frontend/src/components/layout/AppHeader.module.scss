@@ -1,0 +1,84 @@
+.header {
+  background: white;
+  padding: 16px 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .left {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      color: #0284c7;
+    }
+
+    .hospitalInfo {
+      .hospitalName {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1f2937;
+      }
+
+      .departmentName {
+        font-size: 14px;
+        color: #6b7280;
+      }
+    }
+  }
+
+  .right {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+
+    .userInfo {
+      text-align: right;
+
+      .nurseName {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1f2937;
+      }
+
+      .shiftInfo {
+        font-size: 12px;
+        color: #6b7280;
+      }
+    }
+
+    .logoutBtn {
+      padding: 8px 16px;
+      background: #0284c7;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s ease;
+
+      &:hover {
+        background: #0369a1;
+      }
+    }
+  }
+}
+
+// 반응형
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 16px;
+
+    .left,
+    .right {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+}
