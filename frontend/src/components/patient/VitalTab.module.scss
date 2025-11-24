@@ -1,0 +1,314 @@
+.vitalTab {
+  padding: 1.5rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+  }
+}
+
+.headerButtons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.addButton {
+  padding: 0.5rem 1rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #2563eb;
+  }
+}
+
+.chartButton {
+  padding: 0.5rem 1rem;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #059669;
+  }
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+}
+
+.error {
+  padding: 0.75rem 1rem;
+  background: #fee2e2;
+  color: #dc2626;
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+/* 바이탈 입력 폼 */
+.form {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+
+  > .formGroup {
+    margin-bottom: 1rem;
+    
+    input[type="datetime-local"] {
+      width: 100%;
+      max-width: 300px;
+    }
+  }
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+
+  label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.375rem;
+  }
+
+  input {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    transition: border-color 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+  }
+
+  small {
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+}
+
+.bpInput {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  input {
+    flex: 1;
+  }
+
+  span {
+    color: #6b7280;
+    font-weight: 500;
+  }
+}
+
+.formActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.submitButton {
+  flex: 1;
+  padding: 0.75rem;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #059669;
+  }
+}
+
+.cancelButton {
+  flex: 1;
+  padding: 0.75rem;
+  background: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #4b5563;
+  }
+}
+
+/* 바이탈 이력 목록 */
+.vitalList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.vitalItem {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.vitalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+
+  .time {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  .vitalHeaderRight {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .nurse {
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+
+  .editButton {
+    padding: 0.25rem 0.5rem;
+    background: #f59e0b;
+    color: white;
+    border: none;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #d97706;
+    }
+  }
+}
+
+.vitalData {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem;
+}
+
+.dataItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  .label {
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+
+  .unit {
+    font-size: 0.75rem;
+    color: #9ca3af;
+  }
+
+  span:nth-child(2) {
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+}
+
+/* 바이탈 상태 색상 */
+.normal {
+  color: #10b981;
+}
+
+.warning {
+  color: #f59e0b;
+}
+
+.critical {
+  color: #ef4444;
+}
+
+/* 변화 표시 */
+.increase {
+  font-size: 0.75rem;
+  color: #ef4444;
+  margin-left: 0.25rem;
+}
+
+.decrease {
+  font-size: 0.75rem;
+  color: #3b82f6;
+  margin-left: 0.25rem;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .vitalData {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
