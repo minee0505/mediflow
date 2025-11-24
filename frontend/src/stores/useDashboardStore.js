@@ -7,8 +7,8 @@ import apiClient from '../services/apiClient';
 const useDashboardStore = create((set) => ({
   // 상태
   myPatients: [],
+  allPatients: [],
   selectedPatient: null,
-  departmentSummary: null,
   loading: false,
   error: null,
 
@@ -30,15 +30,24 @@ const useDashboardStore = create((set) => ({
     }
   },
 
-  // 부서 요약 정보 조회
-  fetchDepartmentSummary: async () => {
+  // 전체 환자 목록 조회
+  fetchAllPatients: async () => {
+    set({ loading: true, error: null });
     try {
-      const response = await apiClient.get('/dashboard/department-summary');
-      set({ departmentSummary: response.data.data });
+      const response = await apiClient.get('/dashboard/all-patients');
+      set({
+        allPatients: response.data.data,
+        loading: false
+      });
     } catch (error) {
-      console.error('부서 요약 정보 조회 실패:', error);
+      console.error('전체 환자 목록 조회 실패:', error);
+      set({
+        error: error.response?.data?.message || '환자 목록을 불러올 수 없습니다.',
+        loading: false
+      });
     }
   },
+
 
   // 환자 선택
   selectPatient: (patient) => {
@@ -49,8 +58,8 @@ const useDashboardStore = create((set) => ({
   reset: () => {
     set({
       myPatients: [],
+      allPatients: [],
       selectedPatient: null,
-      departmentSummary: null,
       loading: false,
       error: null,
     });

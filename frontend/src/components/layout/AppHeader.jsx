@@ -32,9 +32,9 @@ const AppHeader = () => {
             <div className={styles.left}>
                 <div className={styles.logo}>MediFlow</div>
                 <div className={styles.hospitalInfo}>
-                    <div className={styles.hospitalName}>서울대학교병원</div>
+                    <div className={styles.hospitalName}>한국대학교병원</div>
                     <div className={styles.departmentName}>
-                        {departmentSummary?.departmentName || '부서 정보 로딩중...'}
+                        {departmentSummary?.departmentName || '부서 정보...'}
                     </div>
                 </div>
             </div>
