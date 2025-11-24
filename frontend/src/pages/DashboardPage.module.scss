@@ -1,0 +1,110 @@
+.dashboardPage {
+  display: flex;
+  gap: 24px;
+  height: 100%;
+}
+
+.leftPanel {
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .summary {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+    .summaryTitle {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 12px;
+    }
+
+    .summaryStats {
+      display: flex;
+      gap: 16px;
+
+      .stat {
+        flex: 1;
+        padding: 12px;
+        background: #f0f9ff;
+        border-radius: 8px;
+        text-align: center;
+
+        .statLabel {
+          font-size: 12px;
+          color: #6b7280;
+          margin-bottom: 4px;
+        }
+
+        .statValue {
+          font-size: 24px;
+          font-weight: 700;
+          color: #0284c7;
+        }
+      }
+    }
+  }
+
+  .patientList {
+    flex: 1;
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    overflow-y: auto;
+
+    .listHeader {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .count {
+        font-size: 14px;
+        color: #6b7280;
+        font-weight: 400;
+      }
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #6b7280;
+    }
+
+    .error {
+      text-align: center;
+      padding: 40px;
+      color: #ef4444;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 40px;
+      color: #9ca3af;
+    }
+  }
+}
+
+.rightPanel {
+  width: 60%;
+}
+
+// 반응형
+@media (max-width: 1280px) {
+  .dashboardPage {
+    flex-direction: column;
+  }
+
+  .leftPanel,
+  .rightPanel {
+    width: 100%;
+  }
+}
