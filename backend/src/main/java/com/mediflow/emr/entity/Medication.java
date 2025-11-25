@@ -64,4 +64,19 @@ public class Medication extends BaseTimeEntity {
     /** 처방 의사 */
     @Column(name = "order_doctor", length = 100)
     private String orderDoctor;
+
+    /**
+     * 투약 기록 수정
+     */
+    public void update(String drugName, String drugCode, String dose, 
+                      MedicationRoute route, String frequency, 
+                      LocalDateTime administeredAt, String orderDoctor) {
+        this.drugName = drugName;
+        this.drugCode = drugCode;
+        this.dose = dose;
+        this.route = route;
+        this.frequency = frequency;
+        this.administeredAt = administeredAt;
+        this.orderDoctor = orderDoctor;
+    }
 }

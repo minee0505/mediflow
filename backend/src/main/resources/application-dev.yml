@@ -75,3 +75,8 @@ cookie:
 app:
   oauth2-success-redirect-url: http://localhost:3000/app
   oauth2-failure-redirect-url: http://localhost:3000?from=oauth2
+
+# 식약처 API 설정
+drug-api:
+  base-url: https://apis.data.go.kr/1471000/DrbEasyDrugInfoService
+  service-key: ${DRUG_API_SERVICE_KEY}
