@@ -4,6 +4,7 @@ import NursingNoteTab from '../patient/NursingNoteTab';
 import VitalTab from '../patient/VitalTab';
 import IntakeOutputTab from '../patient/IntakeOutputTab';
 import MedicationTab from '../patient/MedicationTab';
+import TestResultTab from '../patient/TestResultTab';
 import styles from './PatientDetail.module.scss';
 
 /**
@@ -28,7 +29,8 @@ const PatientDetail = ({ patient }) => {
     { id: 'vitals', label: '바이탈' },
     { id: 'io', label: '섭취배설' },
     { id: 'medications', label: '투약' },
-    { id: 'images', label: '검사영상' },
+    { id: 'testResults', label: '검사결과' },
+    { id: 'handover', label: '인수인계' },
   ];
 
   return (
@@ -60,7 +62,8 @@ const PatientDetail = ({ patient }) => {
         {activeTab === 'vitals' && <VitalTab patientId={patient.patientId} />}
         {activeTab === 'io' && <IntakeOutputTab patientId={patient.patientId} />}
         {activeTab === 'medications' && <MedicationTab patientId={patient.patientId} />}
-        {activeTab === 'images' && (
+        {activeTab === 'testResults' && <TestResultTab patientId={patient.patientId} />}
+        {activeTab === 'handover' && (
           <div className={styles.comingSoon}>
             {tabs.find((t) => t.id === activeTab)?.label} 기능은 곧 추가됩니다.
           </div>

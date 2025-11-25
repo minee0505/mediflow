@@ -35,6 +35,8 @@ public class DataInitializer implements CommandLineRunner {
     private final IntakeOutputRepository intakeOutputRepository;
     private final MedicalOrderRepository medicalOrderRepository;
     private final MedicationRepository medicationRepository;
+    private final NursingNoteRepository nursingNoteRepository;
+    private final TestResultRepository testResultRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final Random random = new Random();
 
@@ -84,6 +86,14 @@ public class DataInitializer implements CommandLineRunner {
         // 10. 투약 기록 생성
         List<Medication> medications = createMedications(nurses, patients);
         log.info("✅ 투약 기록 {} 건 생성 완료", medications.size());
+
+        // 11. 간호기록 생성
+        List<NursingNote> nursingNotes = createNursingNotes(nurses, patients);
+        log.info("✅ 간호기록 {} 건 생성 완료", nursingNotes.size());
+
+        // 12. 검사 결과 생성
+        List<TestResult> testResults = createTestResults(nurses, patients);
+        log.info("✅ 검사 결과 {} 건 생성 완료", testResults.size());
 
         log.info("========================================");
         log.info("초기 데이터 생성 완료!");
@@ -636,5 +646,236 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         return medicationRepository.saveAll(medications);
+    }
+
+    /**
+     * 간호기록 생성 (입원 환자 대상, 과거 3일간)
+     */
+    private List<NursingNote> createNursingNotes(List<User> nurses, List<Patient> patients) {
+        List<NursingNote> nursingNotes = new ArrayList<>();
+        
+        // 입원 환자만 필터링
+        List<Patient> admittedPatients = patients.stream()
+                .filter(Patient::getIsAdmitted)
+                .toList();
+
+        String[] noteTemplates = {
+                "환자 상태 양호. 활력징후 안정적. 특이사항 없음.",
+                "통증 호소하여 진통제 투여함. 통증 완화됨.",
+                "식사 50% 섭취. 수분 섭취 권장함.",
+                "보호자 면회. 환자 상태 설명함.",
+                "수면 양호. 야간 특이사항 없음.",
+                "배뇨 정상. 배변 1회 있음.",
+                "활동 제한 중. 침상 안정 유지.",
+                "드레싱 교환함. 상처 치유 양호.",
+                "검사 결과 확인. 주치의 보고 완료.",
+                "낙상 위험 평가 실시. 안전 교육함."
+        };
+
+        NoteCategory[] categories = {
+                NoteCategory.OBSERVATION,
+                NoteCategory.TREATMENT,
+                NoteCategory.EDUCATION,
+                NoteCategory.CONSULTATION,
+                NoteCategory.MEDICATION
+        };
+
+        for (Patient patient : admittedPatients) {
+            // 같은 부서의 간호사 찾기
+            List<User> deptNurses = nurses.stream()
+                    .filter(n -> n.getDepartment() != null)
+                    .filter(n -> patient.getDepartment() != null)
+                    .filter(n -> n.getDepartment().getId().equals(patient.getDepartment().getId()))
+                    .toList();
+
+            if (deptNurses.isEmpty()) continue;
+
+            // 과거 3일간 하루 2-4회 간호기록
+            for (int day = 1; day <= 3; day++) {
+                int notesPerDay = 2 + random.nextInt(3); // 2-4회
+                
+                for (int i = 0; i < notesPerDay; i++) {
+                    User nurse = deptNurses.get(random.nextInt(deptNurses.size()));
+                    String noteContent = noteTemplates[random.nextInt(noteTemplates.length)];
+                    NoteCategory category = categories[random.nextInt(categories.length)];
+
+                    nursingNotes.add(NursingNote.builder()
+                            .patient(patient)
+                            .nurse(nurse)
+                            .content(noteContent)
+                            .plainText(noteContent)
+                            .category(category)
+                            .isImportant(random.nextInt(10) < 2) // 20% 확률로 중요 표시
+                            .aiSuggested(false)
+                            .build());
+                }
+            }
+        }
+
+        return nursingNoteRepository.saveAll(nursingNotes);
+    }
+
+    /**
+     * 검사 결과 생성 (입원 환자 대상, 과거 7일간)
+     */
+    private List<TestResult> createTestResults(List<User> nurses, List<Patient> patients) {
+        List<TestResult> testResults = new ArrayList<>();
+        
+        // 입원 환자만 필터링
+        List<Patient> admittedPatients = patients.stream()
+                .filter(Patient::getIsAdmitted)
+                .toList();
+
+        // 혈액검사 항목
+        Object[][] bloodTests = {
+                {"WBC", "4.0-10.0", "x10³/μL"},
+                {"RBC", "4.2-5.4", "x10⁶/μL"},
+                {"Hemoglobin", "12.0-16.0", "g/dL"},
+                {"Platelet", "150-400", "x10³/μL"},
+                {"Glucose", "70-100", "mg/dL"},
+                {"Creatinine", "0.6-1.2", "mg/dL"}
+        };
+
+        // 소변검사 항목
+        Object[][] urineTests = {
+                {"pH", "5.0-8.0", ""},
+                {"Protein", "Negative", ""},
+                {"Glucose", "Negative", ""},
+                {"RBC", "0-2", "/HPF"}
+        };
+
+        // 영상검사 판독소견
+        String[] imagingResults = {
+                "정상 소견. 특이사항 없음.",
+                "경미한 염증 소견 관찰됨.",
+                "이전 검사 대비 호전 양상.",
+                "추적 관찰 필요.",
+                "정상 범위 내 소견."
+        };
+
+        for (Patient patient : admittedPatients) {
+            // 같은 부서의 간호사 찾기
+            List<User> deptNurses = nurses.stream()
+                    .filter(n -> n.getDepartment() != null)
+                    .filter(n -> patient.getDepartment() != null)
+                    .filter(n -> n.getDepartment().getId().equals(patient.getDepartment().getId()))
+                    .toList();
+
+            if (deptNurses.isEmpty()) continue;
+
+            // 과거 7일간 검사 결과 생성
+            for (int day = 1; day <= 7; day++) {
+                User nurse = deptNurses.get(random.nextInt(deptNurses.size()));
+                LocalDate testDate = LocalDate.now().minusDays(day);
+                java.time.LocalDateTime resultDate = testDate.atTime(14, 0).plusHours(random.nextInt(4));
+
+                // 혈액검사 (3일에 1번)
+                if (day % 3 == 0) {
+                    Object[] test = bloodTests[random.nextInt(bloodTests.length)];
+                    String testName = (String) test[0];
+                    String refRange = (String) test[1];
+                    String unit = (String) test[2];
+                    
+                    // 정상 범위 내 값 생성
+                    boolean isAbnormal = random.nextInt(10) < 2; // 20% 확률로 이상
+                    String resultValue = generateTestValue(testName, refRange, unit, isAbnormal);
+
+                    testResults.add(TestResult.builder()
+                            .patient(patient)
+                            .nurse(nurse)
+                            .testType(TestType.BLOOD)
+                            .testName(testName)
+                            .resultValue(resultValue)
+                            .referenceRange(refRange + " " + unit)
+                            .isAbnormal(isAbnormal)
+                            .testDate(testDate)
+                            .resultDate(resultDate)
+                            .status(TestStatus.COMPLETED)
+                            .build());
+                }
+
+                // 소변검사 (5일에 1번)
+                if (day % 5 == 0) {
+                    Object[] test = urineTests[random.nextInt(urineTests.length)];
+                    String testName = (String) test[0];
+                    String refRange = (String) test[1];
+                    String unit = (String) test[2];
+                    
+                    boolean isAbnormal = random.nextInt(10) < 1; // 10% 확률로 이상
+                    String resultValue = generateTestValue(testName, refRange, unit, isAbnormal);
+
+                    testResults.add(TestResult.builder()
+                            .patient(patient)
+                            .nurse(nurse)
+                            .testType(TestType.URINE)
+                            .testName(testName)
+                            .resultValue(resultValue)
+                            .referenceRange(refRange + " " + unit)
+                            .isAbnormal(isAbnormal)
+                            .testDate(testDate)
+                            .resultDate(resultDate)
+                            .status(TestStatus.COMPLETED)
+                            .build());
+                }
+
+                // 영상검사 (7일에 1번)
+                if (day == 7) {
+                    TestType[] imagingTypes = {TestType.XRAY, TestType.CT, TestType.ULTRASOUND};
+                    TestType imagingType = imagingTypes[random.nextInt(imagingTypes.length)];
+                    String imagingName = switch (imagingType) {
+                        case XRAY -> "Chest X-Ray";
+                        case CT -> "Abdomen CT";
+                        case ULTRASOUND -> "Abdomen Ultrasound";
+                        default -> "Imaging";
+                    };
+
+                    testResults.add(TestResult.builder()
+                            .patient(patient)
+                            .nurse(nurse)
+                            .testType(imagingType)
+                            .testName(imagingName)
+                            .resultValue(imagingResults[random.nextInt(imagingResults.length)])
+                            .referenceRange(null)
+                            .isAbnormal(false)
+                            .testDate(testDate)
+                            .resultDate(resultDate)
+                            .status(TestStatus.COMPLETED)
+                            .build());
+                }
+            }
+        }
+
+        return testResultRepository.saveAll(testResults);
+    }
+
+    /**
+     * 검사 결과값 생성
+     */
+    private String generateTestValue(String testName, String refRange, String unit, boolean isAbnormal) {
+        if (refRange.contains("-")) {
+            // 숫자 범위
+            String[] range = refRange.split("-");
+            try {
+                double min = Double.parseDouble(range[0].trim());
+                double max = Double.parseDouble(range[1].trim());
+                double value;
+                
+                if (isAbnormal) {
+                    // 이상값: 범위 밖
+                    value = random.nextBoolean() ? min * 0.7 : max * 1.3;
+                } else {
+                    // 정상값: 범위 내
+                    value = min + (max - min) * random.nextDouble();
+                }
+                
+                return String.format("%.1f %s", value, unit);
+            } catch (NumberFormatException e) {
+                return refRange;
+            }
+        } else if (refRange.equals("Negative")) {
+            return isAbnormal ? "Positive" : "Negative";
+        } else {
+            return refRange;
+        }
     }
 }
