@@ -1,13 +1,16 @@
 import { useState } from 'react';
+import OrderTab from '../patient/OrderTab';
+import NursingNoteTab from '../patient/NursingNoteTab';
 import VitalTab from '../patient/VitalTab';
 import IntakeOutputTab from '../patient/IntakeOutputTab';
+import MedicationTab from '../patient/MedicationTab';
 import styles from './PatientDetail.module.scss';
 
 /**
  * 환자 상세 정보 컴포넌트
  */
 const PatientDetail = ({ patient }) => {
-  const [activeTab, setActiveTab] = useState('vitals');
+  const [activeTab, setActiveTab] = useState('orders');
 
   if (!patient) {
     return (
@@ -20,10 +23,11 @@ const PatientDetail = ({ patient }) => {
   }
 
   const tabs = [
-    { id: 'vitals', label: '바이탈' },
+    { id: 'orders', label: '오더조회' },
     { id: 'notes', label: '간호기록' },
-    { id: 'medications', label: '투약' },
+    { id: 'vitals', label: '바이탈' },
     { id: 'io', label: '섭취배설' },
+    { id: 'medications', label: '투약' },
     { id: 'images', label: '검사영상' },
   ];
 
@@ -51,9 +55,12 @@ const PatientDetail = ({ patient }) => {
       </div>
 
       <div className={styles.content}>
+        {activeTab === 'orders' && <OrderTab patientId={patient.patientId} />}
+        {activeTab === 'notes' && <NursingNoteTab patientId={patient.patientId} />}
         {activeTab === 'vitals' && <VitalTab patientId={patient.patientId} />}
         {activeTab === 'io' && <IntakeOutputTab patientId={patient.patientId} />}
-        {activeTab !== 'vitals' && activeTab !== 'io' && (
+        {activeTab === 'medications' && <MedicationTab patientId={patient.patientId} />}
+        {activeTab === 'images' && (
           <div className={styles.comingSoon}>
             {tabs.find((t) => t.id === activeTab)?.label} 기능은 곧 추가됩니다.
           </div>

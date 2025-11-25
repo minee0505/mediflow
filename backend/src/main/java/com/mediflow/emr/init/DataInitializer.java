@@ -33,6 +33,8 @@ public class DataInitializer implements CommandLineRunner {
     private final AssignmentRepository assignmentRepository;
     private final VitalSignRepository vitalSignRepository;
     private final IntakeOutputRepository intakeOutputRepository;
+    private final MedicalOrderRepository medicalOrderRepository;
+    private final MedicationRepository medicationRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final Random random = new Random();
 
@@ -74,6 +76,14 @@ public class DataInitializer implements CommandLineRunner {
         // 8. 섭취배설량 생성
         List<IntakeOutput> ioRecords = createIntakeOutputs(nurses, patients);
         log.info("✅ 섭취배설량 {} 건 생성 완료", ioRecords.size());
+
+        // 9. 의료 오더 생성
+        List<MedicalOrder> orders = createMedicalOrders(nurses, patients);
+        log.info("✅ 의료 오더 {} 건 생성 완료", orders.size());
+
+        // 10. 투약 기록 생성
+        List<Medication> medications = createMedications(nurses, patients);
+        log.info("✅ 투약 기록 {} 건 생성 완료", medications.size());
 
         log.info("========================================");
         log.info("초기 데이터 생성 완료!");
@@ -484,5 +494,147 @@ public class DataInitializer implements CommandLineRunner {
     private String getRandomBloodType() {
         String[] bloodTypes = {"A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"};
         return bloodTypes[random.nextInt(bloodTypes.length)];
+    }
+
+    /**
+     * 의료 오더 생성 (입원 환자 대상)
+     */
+    private List<MedicalOrder> createMedicalOrders(List<User> nurses, List<Patient> patients) {
+        List<MedicalOrder> orders = new ArrayList<>();
+        
+        // 입원 환자만 필터링
+        List<Patient> admittedPatients = patients.stream()
+                .filter(Patient::getIsAdmitted)
+                .toList();
+
+        String[] doctors = {"김철수", "이영희", "박민수", "정수진", "최동욱"};
+        
+        // 투약 오더 샘플 (식약처 API에서 검색 가능한 실제 약품명)
+        String[][] medications = {
+                {"타이레놀", null, "500mg", "PO", "1일 3회"},
+                {"아스피린", null, "100mg", "PO", "1일 1회"},
+                {"게보린", null, "1정", "PO", "1일 3회"},
+                {"판피린", null, "1정", "PO", "1일 3회"},
+                {"부루펜", null, "200mg", "PO", "1일 3회"},
+                {"박트로반", null, "적당량", "TOPICAL", "1일 2회"},
+                {"후시딘", null, "적당량", "TOPICAL", "1일 2회"}
+        };
+
+        for (Patient patient : admittedPatients) {
+            // 환자당 2-4개 오더 생성
+            int orderCount = 2 + random.nextInt(3);
+            
+            for (int i = 0; i < orderCount; i++) {
+                String[] med = medications[random.nextInt(medications.length)];
+                String doctor = doctors[random.nextInt(doctors.length)];
+                
+                // 오더 시간 (과거 1-3일)
+                java.time.LocalDateTime orderedAt = java.time.LocalDateTime.now()
+                        .minusDays(1 + random.nextInt(3))
+                        .withHour(8 + random.nextInt(12))
+                        .withMinute(0)
+                        .withSecond(0)
+                        .withNano(0);
+
+                // 상태: 70% PENDING, 20% IN_PROGRESS, 10% COMPLETED
+                String status;
+                int statusRand = random.nextInt(10);
+                if (statusRand < 7) {
+                    status = "PENDING";
+                } else if (statusRand < 9) {
+                    status = "IN_PROGRESS";
+                } else {
+                    status = "COMPLETED";
+                }
+
+                orders.add(MedicalOrder.builder()
+                        .patient(patient)
+                        .orderType("MEDICATION")
+                        .orderName(med[0])
+                        .orderCode(med[1])
+                        .dose(med[2])
+                        .route(med[3])
+                        .frequency(med[4])
+                        .instructions("식후 30분")
+                        .status(status)
+                        .orderedAt(orderedAt)
+                        .orderDoctor(doctor)
+                        .build());
+            }
+        }
+
+        return medicalOrderRepository.saveAll(orders);
+    }
+
+    /**
+     * 투약 기록 생성 (입원 환자 대상, 과거 2일간)
+     */
+    private List<Medication> createMedications(List<User> nurses, List<Patient> patients) {
+        List<Medication> medications = new ArrayList<>();
+        
+        // 입원 환자만 필터링
+        List<Patient> admittedPatients = patients.stream()
+                .filter(Patient::getIsAdmitted)
+                .toList();
+
+        String[] doctors = {"김철수", "이영희", "박민수", "정수진", "최동욱"};
+        
+        // 투약 샘플 (식약처 API에서 검색 가능한 실제 약품명)
+        Object[][] drugs = {
+                {"타이레놀", null, "500mg", MedicationRoute.PO, "1일 3회"},
+                {"아스피린", null, "100mg", MedicationRoute.PO, "1일 1회"},
+                {"게보린", null, "1정", MedicationRoute.PO, "1일 3회"},
+                {"판피린", null, "1정", MedicationRoute.PO, "1일 3회"},
+                {"부루펜", null, "200mg", MedicationRoute.PO, "1일 3회"},
+                {"박트로반", null, "적당량", MedicationRoute.TOPICAL, "1일 2회"},
+                {"후시딘", null, "적당량", MedicationRoute.TOPICAL, "1일 2회"}
+        };
+
+        for (Patient patient : admittedPatients) {
+            // 같은 부서의 간호사 찾기
+            List<User> deptNurses = nurses.stream()
+                    .filter(n -> n.getDepartment() != null)
+                    .filter(n -> patient.getDepartment() != null)
+                    .filter(n -> n.getDepartment().getId().equals(patient.getDepartment().getId()))
+                    .toList();
+
+            if (deptNurses.isEmpty()) continue;
+
+            // 과거 2일간 하루 2-3회 투약
+            for (int day = 1; day <= 2; day++) {
+                int medsPerDay = 2 + random.nextInt(2);
+                
+                for (int i = 0; i < medsPerDay; i++) {
+                    User nurse = deptNurses.get(random.nextInt(deptNurses.size()));
+                    Object[] drug = drugs[random.nextInt(drugs.length)];
+                    String doctor = doctors[random.nextInt(doctors.length)];
+                    
+                    // 투약 시간 (과거 day일, 8시/14시/20시)
+                    int[] hours = {8, 14, 20};
+                    int hour = hours[i % hours.length];
+                    
+                    java.time.LocalDateTime administeredAt = java.time.LocalDateTime.now()
+                            .minusDays(day)
+                            .withHour(hour)
+                            .withMinute(0)
+                            .withSecond(0)
+                            .withNano(0);
+
+                    medications.add(Medication.builder()
+                            .patient(patient)
+                            .nurse(nurse)
+                            .drugName((String) drug[0])
+                            .drugCode((String) drug[1])
+                            .dose((String) drug[2])
+                            .route((MedicationRoute) drug[3])
+                            .frequency((String) drug[4])
+                            .administeredAt(administeredAt)
+                            .orderDoctor(doctor)
+                            .build());
+                }
+            }
+        }
+
+        return medicationRepository.saveAll(medications);
     }
 }

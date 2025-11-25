@@ -34,7 +34,16 @@ public enum ErrorCode {
     VITAL_NOT_FOUND(HttpStatus.NOT_FOUND, "vital sign not found"),
 
     // 섭취배설량 관련 에러 코드
-    IO_NOT_FOUND(HttpStatus.NOT_FOUND, "intake/output record not found");
+    IO_NOT_FOUND(HttpStatus.NOT_FOUND, "intake/output record not found"),
+
+    // 간호기록 관련 에러 코드
+    NOTE_NOT_FOUND(HttpStatus.NOT_FOUND, "nursing note not found"),
+
+    // 투약 관련 에러 코드
+    MEDICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "medication record not found"),
+
+    // 오더 관련 에러 코드
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "medical order not found");
 
     private final HttpStatus status;
     private final String defaultMessage;
