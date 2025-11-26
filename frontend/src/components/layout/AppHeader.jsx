@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import useDashboardStore from '../../stores/useDashboardStore';
 import { useAuthStore } from '../../stores/authStore';
 import { AuthService } from '../../services/authService';
@@ -8,6 +8,7 @@ import styles from './AppHeader.module.scss';
 
 const AppHeader = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { departmentSummary } = useDashboardStore();
     const { clear } = useAuthStore();
     const [selectedDate, setSelectedDate] = useState(new Date());
@@ -27,10 +28,14 @@ const AppHeader = () => {
         setSelectedDate(date);
     };
 
+    const isAiTestPage = location.pathname === '/app/ai-test';
+
     return (
         <header className={styles.header}>
             <div className={styles.left}>
-                <div className={styles.logo}>MediFlow</div>
+                <div className={styles.logo} onClick={() => navigate('/app')}>
+                    MediFlow
+                </div>
                 <div className={styles.hospitalInfo}>
                     <div className={styles.hospitalName}>한국대학교병원</div>
                     <div className={styles.departmentName}>
@@ -40,6 +45,12 @@ const AppHeader = () => {
             </div>
 
             <div className={styles.right}>
+                <button
+                    className={styles.aiTestBtn}
+                    onClick={() => navigate('/app/ai-test')}
+                >
+                    🤖 AI 테스트
+                </button>
                 <div className={styles.userInfo}>
                     <div className={styles.nurseName}>
                         {departmentSummary?.nurseName || '사용자'}

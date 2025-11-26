@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import useDashboardStore from '../stores/useDashboardStore';
 import PatientCard from '../components/dashboard/PatientCard';
 import PatientDetail from '../components/dashboard/PatientDetail';
+import HandoverTab from '../components/handover/HandoverTab';
 import styles from './DashboardPage.module.scss';
 
 /**
@@ -86,6 +87,12 @@ const DashboardPage = () => {
                 >
                   전체 환자
                 </button>
+                <button
+                  className={`${styles.tab} ${activeTab === 'handover' ? styles.activeTab : ''}`}
+                  onClick={() => setActiveTab('handover')}
+                >
+                  인수인계
+                </button>
               </div>
               <span className={styles.count}>{displayPatients.length}명</span>
             </div>
@@ -94,7 +101,7 @@ const DashboardPage = () => {
 
             {error && <div className={styles.error}>{error}</div>}
 
-            {!loading && !error && displayPatients.length === 0 && (
+            {!loading && !error && displayPatients.length === 0 && activeTab !== 'handover' && (
               <div className={styles.empty}>
                 {activeTab === 'my' ? '배정된 환자가 없습니다.' : '부서에 환자가 없습니다.'}
               </div>
@@ -102,6 +109,7 @@ const DashboardPage = () => {
 
             {!loading &&
               !error &&
+              activeTab !== 'handover' &&
               displayPatients.map((patient) => (
                 <PatientCard
                   key={patient.patientId}
@@ -113,9 +121,13 @@ const DashboardPage = () => {
           </div>
         </div>
 
-      {/* 우측 패널 - 환자 상세 */}
+      {/* 우측 패널 - 환자 상세 또는 인수인계 */}
       <div className={styles.rightPanel}>
-        <PatientDetail patient={selectedPatient} />
+        {activeTab === 'handover' ? (
+          <HandoverTab />
+        ) : (
+          <PatientDetail patient={selectedPatient} />
+        )}
       </div>
     </div>
   );

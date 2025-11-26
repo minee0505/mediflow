@@ -7,6 +7,7 @@ import RegisterPage from './pages/RegisterPage.jsx';
 import TermsOfServicePage from './pages/TermsOfServicePage.jsx';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
+import AiTestPage from './pages/AiTestPage.jsx';
 import AppLayout from './layouts/AppLayout.jsx';
 import ProtectedRoute from './components/auth/ProtectedRoute.jsx';
 import PublicRoute from './components/auth/PublicRoute.jsx';
@@ -63,6 +64,10 @@ export const router = createBrowserRouter([
             {
                 index: true,
                 element: <DashboardPage />,
+            },
+            {
+                path: 'ai-test',
+                element: <AiTestPage />,
             },
         ],
     },

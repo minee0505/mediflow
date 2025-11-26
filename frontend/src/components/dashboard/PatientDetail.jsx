@@ -6,7 +6,6 @@ import IntakeOutputTab from '../patient/IntakeOutputTab';
 import MedicationTab from '../patient/MedicationTab';
 import TestResultTab from '../patient/TestResultTab';
 import styles from './PatientDetail.module.scss';
-
 /**
  * 환자 상세 정보 컴포넌트
  */
@@ -30,7 +29,6 @@ const PatientDetail = ({ patient }) => {
     { id: 'io', label: '섭취배설' },
     { id: 'medications', label: '투약' },
     { id: 'testResults', label: '검사결과' },
-    { id: 'handover', label: '인수인계' },
   ];
 
   return (

@@ -36,6 +36,48 @@
     align-items: center;
     gap: 24px;
 
+    .handoverBtn {
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+      }
+
+      &.active {
+        background: linear-gradient(135deg, #218838 0%, #28a745 100%);
+      }
+    }
+
+    .aiTestBtn {
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+
+      &.active {
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+      }
+    }
+
     .userInfo {
       text-align: right;
 
