@@ -29,28 +29,35 @@ public class MedicalOrderService {
 
     /**
      * 환자별 오더 목록 조회
+     * 성능 최적화: 약품 상세 정보는 별도 API로 조회
      */
     @Transactional(readOnly = true)
     public List<MedicalOrderResponse> getOrdersByPatient(Long patientId) {
         List<MedicalOrder> orders = medicalOrderRepository.findByPatientIdOrderByOrderedAtDesc(patientId);
         
         return orders.stream()
-                .map(order -> {
-                    MedicalOrderResponse response = MedicalOrderResponse.from(order);
-                    
-                    // 투약 오더이고 약품명이 있으면 식약처 API 호출
-                    if ("MEDICATION".equals(order.getOrderType()) && order.getOrderName() != null) {
-                        try {
-                            DrugDetailInfo drugInfo = drugApiService.getDrugDetail(order.getOrderName());
-                            response.setDrugInfo(drugInfo);
-                        } catch (Exception e) {
-                            log.warn("약품 상세 정보 조회 실패: {}", order.getOrderName(), e);
-                        }
-                    }
-                    
-                    return response;
-                })
+                .map(MedicalOrderResponse::from)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 특정 오더의 약품 상세 정보 조회
+     */
+    @Transactional(readOnly = true)
+    public DrugDetailInfo getOrderDrugDetail(Long orderId) {
+        MedicalOrder order = medicalOrderRepository.findById(orderId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
+        
+        if (!"MEDICATION".equals(order.getOrderType()) || order.getOrderName() == null) {
+            return null;
+        }
+        
+        try {
+            return drugApiService.getDrugDetail(order.getOrderName());
+        } catch (Exception e) {
+            log.warn("약품 상세 정보 조회 실패: {}", order.getOrderName(), e);
+            return null;
+        }
     }
 
     /**

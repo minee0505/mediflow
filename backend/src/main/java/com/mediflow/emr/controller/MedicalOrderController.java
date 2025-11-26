@@ -63,4 +63,15 @@ public class MedicalOrderController {
         medicalOrderService.deleteOrder(orderId);
         return ResponseEntity.ok(ApiResponse.ok(null));
     }
+
+    /**
+     * 오더의 약품 상세 정보 조회
+     */
+    @GetMapping("/{orderId}/drug-detail")
+    public ResponseEntity<ApiResponse<com.mediflow.emr.dto.DrugDetailInfo>> getOrderDrugDetail(
+            @PathVariable Long orderId) {
+        log.info("오더 약품 상세 정보 조회 요청: orderId={}", orderId);
+        com.mediflow.emr.dto.DrugDetailInfo drugDetail = medicalOrderService.getOrderDrugDetail(orderId);
+        return ResponseEntity.ok(ApiResponse.ok(drugDetail));
+    }
 }
