@@ -1,0 +1,102 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    # EC2 .env 파일의 변수 사용
+    url: jdbc:mariadb://${DB_HOST}:${DB_PORT:3306}/${DB_NAME}?serverTimezone=Asia/Seoul
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      # 중요: 운영 환경에서는 절대 create를 쓰면 안 됨! (데이터 삭제 방지)
+      # validate: 엔티티와 테이블이 맞는지 검사만 함.
+      ddl-auto: validate
+    show-sql: false # 운영 로그 깔끔하게 유지
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.MariaDBDialect
+        jdbc:
+          time_zone: Asia/Seoul
+
+  # 이메일 설정 (기존 유지, 변수 처리)
+  mail:
+    host: smtp.naver.com
+    port: 465
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+
+  # 시큐리티 & OAuth2 (주소 변수화 핵심!)
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope: [profile, email]
+            # EC2 .env에 있는 배포용 리다이렉트 주소 사용
+            redirect-uri: ${GOOGLE_REDIRECT_URI}
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
+            client-authentication-method: client_secret_post
+            authorization-grant-type: authorization_code
+            scope: [profile_nickname, profile_image]
+            # EC2 .env에 있는 배포용 리다이렉트 주소 사용
+            redirect-uri: ${KAKAO_REDIRECT_URI}
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
+server:
+  port: ${SERVER_PORT:9005}
+
+# 로그 레벨 조정 (운영 환경 최적화)
+logging:
+  level:
+    root: INFO
+    com.mediflow.emr: INFO
+    org.springframework.web: WARN
+    org.hibernate.SQL: WARN
+
+# 쿠키 & 리다이렉트 설정 (HTTPS/도메인 적용)
+cookie:
+  domain: mediflow-emr.cloud  # 실제 도메인 (api 서브도메인과 공유 위해 루트 도메인 사용)
+  secure: true               # HTTPS 필수
+  http-only: true
+  same-site: None            # 소셜 로그인 흐름 끊김 방지
+  access-token-name: ACCESS_TOKEN
+  refresh-token-name: REFRESH_TOKEN
+  access-max-age: 900
+  refresh-max-age: 604800
+
+app:
+  # EC2 .env에 있는 프론트엔드 주소 사용
+  oauth2-success-redirect-url: ${OAUTH2_SUCCESS_URL}
+  oauth2-failure-redirect-url: ${OAUTH2_FAILURE_URL}
+
+# 식약처 API
+drug-api:
+  base-url: https://apis.data.go.kr/1471000/DrbEasyDrugInfoService
+  service-key: ${DRUG_API_SERVICE_KEY}
+
+# Gemini API
+gemini:
+  api-key: ${GEMINI_API_KEY}
+  model: gemini-2.0-flash-exp
+  base-url: https://generativelanguage.googleapis.com/v1beta
