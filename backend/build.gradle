@@ -38,6 +38,7 @@ dependencies {
     implementation 'org.springframework.security:spring-security-oauth2-authorization-server' // OAuth2 인증 서버 구현
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client' // OAuth2 클라이언트 (소셜 로그인 등)
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server' // OAuth2 리소스 서버 (JWT 검증 등)
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     // Email
     implementation 'org.springframework.boot:spring-boot-starter-mail' // 이메일 발송 기능
