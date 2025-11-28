@@ -44,15 +44,30 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        if (departmentRepository.count() > 0) {
-            log.info("========================================");
-            log.info("데이터가 이미 존재합니다. 초기화를 건너뜁니다.");
-            return;  // 여기서 종료
-        }
         log.info("========================================");
-        log.info("개발 환경 초기 데이터 생성 시작");
+        log.info("초기 데이터 생성 시작");
         log.info("========================================");
 
+        // 부서 데이터가 없으면 전체 초기 데이터 생성
+        if (departmentRepository.count() == 0) {
+            log.info("부서 데이터가 없습니다. 전체 초기 데이터를 생성합니다.");
+            createAllInitialData();
+            return;
+        }
+        
+        // 부서 데이터가 있으면 근무조와 배정만 확인
+        log.info("부서 데이터가 이미 존재합니다. 근무조와 배정만 확인합니다.");
+        checkAndCreateShiftsAndAssignments();
+        
+        log.info("========================================");
+        log.info("초기 데이터 확인 완료!");
+        log.info("========================================");
+    }
+
+    /**
+     * 전체 초기 데이터 생성
+     */
+    private void createAllInitialData() {
         // 1. 부서 생성
         List<DepartmentEntity> departments = createDepartments();
         log.info("✅ 부서 {} 개 생성 완료", departments.size());
@@ -108,7 +123,39 @@ public class DataInitializer implements CommandLineRunner {
         log.info("========================================");
         log.info("초기 데이터 생성 완료!");
         log.info("========================================");
+    }
 
+    /**
+     * 근무조와 배정만 확인하고 없으면 생성
+     */
+    private void checkAndCreateShiftsAndAssignments() {
+        LocalDate today = LocalDate.now();
+        List<Shift> todayShifts = shiftRepository.findByDate(today);
+        
+        if (todayShifts.isEmpty()) {
+            log.info("오늘({}) 근무조가 없습니다. 생성합니다.", today);
+            todayShifts = createShifts();
+            log.info("✅ 근무조 {} 개 생성 완료", todayShifts.size());
+        } else {
+            log.info("오늘({}) 근무조가 이미 존재합니다.", today);
+        }
+        
+        // 배정 확인
+        List<Assignment> todayAssignments = assignmentRepository.findByAssignedDate(today);
+        if (todayAssignments.isEmpty()) {
+            log.info("오늘({}) 배정이 없습니다. 생성합니다.", today);
+            List<User> nurses = userRepository.findByRole(Role.NURSE);
+            List<Patient> patients = patientRepository.findByIsAdmitted(true);
+            
+            if (!nurses.isEmpty() && !patients.isEmpty()) {
+                List<Assignment> assignments = createAssignments(nurses, patients, todayShifts);
+                log.info("✅ 배정 {} 건 생성 완료", assignments.size());
+            } else {
+                log.warn("간호사({})나 입원환자({})가 없어서 배정을 건너뜁니다.", nurses.size(), patients.size());
+            }
+        } else {
+            log.info("오늘({}) 배정이 이미 존재합니다. ({}건)", today, todayAssignments.size());
+        }
     }
 
     /**
