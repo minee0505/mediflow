@@ -76,7 +76,7 @@ logging:
 
 # 쿠키 & 리다이렉트 설정 (HTTPS/도메인 적용)
 cookie:
-  domain: mediflow-emr.cloud  # 실제 도메인 (api 서브도메인과 공유 위해 루트 도메인 사용)
+  domain: .mediflow-emr.cloud  # 실제 도메인 (api 서브도메인과 공유 위해 루트 도메인 사용)
   secure: true               # HTTPS 필수
   http-only: true
   same-site: None            # 소셜 로그인 흐름 끊김 방지
