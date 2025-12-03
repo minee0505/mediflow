@@ -1,6 +1,9 @@
 package com.mediflow.emr.repository;
 
 import com.mediflow.emr.entity.Assignment;
+import com.mediflow.emr.entity.Patient;
+import com.mediflow.emr.entity.Shift;
+import com.mediflow.emr.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
@@ -45,4 +48,9 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
      * 주담당 배정 목록 조회
      */
     List<Assignment> findByPatientIdAndIsPrimary(Long patientId, Boolean isPrimary);
+
+    /**
+     * 중복 배정 확인
+     */
+    boolean existsByNurseAndPatientAndShift(User nurse, Patient patient, Shift shift);
 }

@@ -130,6 +130,24 @@ public class User extends BaseTimeEntity {
     }
 
     /**
+     * 사용자의 이름을 설정합니다.
+     *
+     * @param name 이름
+     */
+    public void updateName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * 사용자의 입사일을 설정합니다.
+     *
+     * @param hireDate 입사일
+     */
+    public void updateHireDate(java.time.LocalDate hireDate) {
+        this.hireDate = hireDate;
+    }
+
+    /**
      * 마지막 로그인 시간을 업데이트합니다.
      */
     public void updateLastLogin() {

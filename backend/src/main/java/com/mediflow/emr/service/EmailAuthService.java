@@ -38,6 +38,7 @@ public class EmailAuthService {
     private final EmailVerificationRepository emailVerificationRepository;
     private final JavaMailSender mailSender;
     private final PasswordEncoder passwordEncoder;
+    private final DummyDataService dummyDataService;
 
     @Value("${spring.mail.username}")
     private String mailHost;
@@ -351,6 +352,9 @@ public class EmailAuthService {
         // 6. 인증 정보 삭제 (더 이상 필요 없음)
         emailVerificationRepository.delete(verification);
         log.info("인증 정보 삭제 완료. email={}", email);
+
+        // 7. 신규 사용자에게 더미 데이터 적용 (부서 배정, 환자 배정 등)
+        dummyDataService.applyDummyDataToNewUser(user);
 
         log.info("회원가입 완료. email={}, userId={}", email, user.getId());
     }
