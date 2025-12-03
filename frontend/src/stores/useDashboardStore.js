@@ -9,9 +9,22 @@ const useDashboardStore = create((set) => ({
   myPatients: [],
   allPatients: [],
   selectedPatient: null,
+  departmentSummary: null, // 부서 요약 정보 추가
   loading: false,
   error: null,
   activeTab: 'my', // 현재 활성화된 탭 ('my', 'all', 'handover')
+
+  // 부서 요약 정보 조회
+  fetchDepartmentSummary: async () => {
+    try {
+      const response = await apiClient.get('/dashboard/department-summary');
+      set({
+        departmentSummary: response.data.data
+      });
+    } catch (error) {
+      console.error('부서 요약 정보 조회 실패:', error);
+    }
+  },
 
   // 내 담당 환자 목록 조회
   fetchMyPatients: async () => {
@@ -66,6 +79,7 @@ const useDashboardStore = create((set) => ({
       myPatients: [],
       allPatients: [],
       selectedPatient: null,
+      departmentSummary: null,
       loading: false,
       error: null,
       activeTab: 'my',

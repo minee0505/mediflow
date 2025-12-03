@@ -40,9 +40,17 @@ const DashboardPage = () => {
     activeTab,
     fetchMyPatients,
     fetchAllPatients,
+    fetchDepartmentSummary,
     selectPatient,
     setActiveTab,
   } = useDashboardStore();
+
+  // ===================================================================
+  // 부서 요약 정보는 최초 한 번만 로드
+  // ===================================================================
+  useEffect(() => {
+    fetchDepartmentSummary();
+  }, [fetchDepartmentSummary]);
 
   // ===================================================================
   // 성능 최적화: 초기 로드와 탭 변경을 하나의 useEffect로 통합

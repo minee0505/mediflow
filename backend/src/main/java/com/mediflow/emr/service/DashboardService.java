@@ -78,7 +78,7 @@ public class DashboardService {
                             .diagnosis(patient.getDiagnosis())
                             .allergies(patient.getAllergies())
                             .triageLevel(patient.getTriageLevel())
-                            .isPrimary(assignment.getIsPrimary())
+                            .isPrimary(false) // 주담당 기능 제거
                             .systolicBp(latestVital != null ? latestVital.getSystolicBp() : null)
                             .diastolicBp(latestVital != null ? latestVital.getDiastolicBp() : null)
                             .heartRate(latestVital != null ? latestVital.getHeartRate() : null)
@@ -99,8 +99,7 @@ public class DashboardService {
             if (a.getTriageLevel() != null && b.getTriageLevel() != null) {
                 return a.getTriageLevel().compareTo(b.getTriageLevel());
             }
-            // 트리아지가 없으면 주담당 우선
-            return Boolean.compare(b.getIsPrimary(), a.getIsPrimary());
+            return 0;
         });
 
         return responses;
@@ -185,12 +184,6 @@ public class DashboardService {
                     List<VitalSign> vitals = vitalSignRepository.findByPatientIdOrderByMeasuredAtDesc(patient.getId());
                     VitalSign latestVital = vitals.isEmpty() ? null : vitals.get(0);
 
-                    // 미리 조회한 배정 정보에서 확인 (추가 DB 쿼리 없음!)
-                    // [최적화 전] assignmentRepository.findBy...() 호출 → 각 환자마다 DB 쿼리
-                    // [최적화 후] 메모리에 있는 myAssignments에서 검색 → DB 쿼리 없음
-                    boolean isPrimary = myAssignments.stream()
-                            .anyMatch(a -> a.getPatient().getId().equals(patient.getId()) && a.getIsPrimary());
-
                     return MyPatientResponse.builder()
                             .patientId(patient.getId())
                             .chartNumber(patient.getChartNumber())
@@ -200,7 +193,7 @@ public class DashboardService {
                             .diagnosis(patient.getDiagnosis())
                             .allergies(patient.getAllergies())
                             .triageLevel(patient.getTriageLevel())
-                            .isPrimary(isPrimary)
+                            .isPrimary(false) // 주담당 기능 제거
                             .systolicBp(latestVital != null ? latestVital.getSystolicBp() : null)
                             .diastolicBp(latestVital != null ? latestVital.getDiastolicBp() : null)
                             .heartRate(latestVital != null ? latestVital.getHeartRate() : null)
@@ -215,7 +208,6 @@ public class DashboardService {
 
         // 6단계: 응급실 환자는 트리아지 순서로 정렬
         // 트리아지 레벨: 1(최우선) → 5(비응급) 순서
-        // 동일 레벨이면 내 담당 환자 우선
         responses.sort((a, b) -> {
             // 트리아지가 있는 환자 우선
             if (a.getTriageLevel() != null && b.getTriageLevel() == null) return -1;
@@ -223,8 +215,7 @@ public class DashboardService {
             if (a.getTriageLevel() != null && b.getTriageLevel() != null) {
                 return a.getTriageLevel().compareTo(b.getTriageLevel());
             }
-            // 트리아지가 없으면 주담당 우선
-            return Boolean.compare(b.getIsPrimary(), a.getIsPrimary());
+            return 0;
         });
 
         return responses;
@@ -251,13 +242,15 @@ public class DashboardService {
 
         // 현재 근무조
         ShiftType currentShiftType = getCurrentShiftType();
+        String shiftTypeName = getShiftTypeName(currentShiftType);
 
         return DepartmentSummaryResponse.builder()
                 .departmentName(nurse.getDepartment().getName())
-                .departmentCode(nurse.getDepartment().getCode())
+                .departmentCode(nurse.getDepartment().getCode().toUpperCase()) // 부서 코드 대문자 변환
                 .totalPatients(totalPatients)
                 .myPatients(myPatients)
                 .nurseName(nurse.getName())
+                .shiftType(shiftTypeName)
                 .build();
     }
 
@@ -274,6 +267,17 @@ public class DashboardService {
         } else {
             return ShiftType.NIGHT;
         }
+    }
+
+    /**
+     * ShiftType을 영문 이름으로 변환
+     */
+    private String getShiftTypeName(ShiftType shiftType) {
+        return switch (shiftType) {
+            case DAY -> "Day";
+            case EVENING -> "Evening";
+            case NIGHT -> "Night";
+        };
     }
 
 }
