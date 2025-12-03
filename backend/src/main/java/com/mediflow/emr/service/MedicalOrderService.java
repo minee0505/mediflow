@@ -91,11 +91,27 @@ public class MedicalOrderService {
      */
     @Transactional
     public MedicalOrderResponse updateOrderStatus(Long orderId, String status, String completedBy) {
+        log.info("오더 상태 변경 시작 - orderId: {}, status: {}, completedBy: {}", orderId, status, completedBy);
+
         MedicalOrder order = medicalOrderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
 
+        log.info("오더 조회 성공 - 현재 상태: {}", order.getStatus());
+
         order.updateStatus(status, completedBy);
-        return MedicalOrderResponse.from(order);
+
+        log.info("오더 상태 업데이트 완료 - 새 상태: {}", order.getStatus());
+
+        // 명시적으로 저장
+        MedicalOrder savedOrder = medicalOrderRepository.save(order);
+
+        log.info("오더 저장 완료 - 저장된 상태: {}", savedOrder.getStatus());
+
+        MedicalOrderResponse response = MedicalOrderResponse.from(savedOrder);
+
+        log.info("오더 상태 변경 완료 - response status: {}", response.getStatus());
+
+        return response;
     }
 
     /**

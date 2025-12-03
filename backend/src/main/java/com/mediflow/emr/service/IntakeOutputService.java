@@ -134,10 +134,11 @@ public class IntakeOutputService {
 
     /**
      * 섭취배설량 삭제
+     * 의료법 제23조에 따라 의료 기록은 10년간 보존해야 하므로 삭제 불가
      */
     @Transactional
     public void deleteIntakeOutput(Long recordId, Long nurseId) {
-        log.info("섭취배설량 삭제 - recordId: {}, nurseId: {}", recordId, nurseId);
+        log.info("섭취배설량 삭제 시도 - recordId: {}, nurseId: {}", recordId, nurseId);
 
         // 기록 조회
         IntakeOutput record = intakeOutputRepository.findById(recordId)
@@ -148,8 +149,14 @@ public class IntakeOutputService {
             throw new BusinessException(ErrorCode.FORBIDDEN, "본인이 등록한 기록만 삭제할 수 있습니다");
         }
 
-        intakeOutputRepository.delete(record);
-        log.info("섭취배설량 삭제 완료 - id: {}", recordId);
+        // 의료법 제23조: 의료 기록은 10년간 보존 의무
+        // 삭제 대신 예외를 발생시켜 삭제 불가 안내
+        log.warn("의료법 제23조에 따라 섭취배설량 기록 삭제 불가 - recordId: {}", recordId);
+        throw new BusinessException(ErrorCode.MEDICAL_RECORD_CANNOT_BE_DELETED);
+
+        // 기존 삭제 코드 (주석 처리)
+        // intakeOutputRepository.delete(record);
+        // log.info("섭취배설량 삭제 완료 - id: {}", recordId);
     }
 
     /**

@@ -112,10 +112,11 @@ public class NursingNoteService {
 
     /**
      * 간호기록 삭제
+     * 의료법 제23조에 따라 의료 기록은 10년간 보존해야 하므로 삭제 불가
      */
     @Transactional
     public void deleteNursingNote(Long noteId, Long nurseId) {
-        log.info("간호기록 삭제 - noteId: {}, nurseId: {}", noteId, nurseId);
+        log.info("간호기록 삭제 시도 - noteId: {}, nurseId: {}", noteId, nurseId);
 
         // 기록 조회
         NursingNote note = nursingNoteRepository.findById(noteId)
@@ -126,8 +127,14 @@ public class NursingNoteService {
             throw new BusinessException(ErrorCode.FORBIDDEN, "본인이 작성한 기록만 삭제할 수 있습니다");
         }
 
-        nursingNoteRepository.delete(note);
-        log.info("간호기록 삭제 완료 - id: {}", noteId);
+        // 의료법 제23조: 의료 기록은 10년간 보존 의무
+        // 삭제 대신 예외를 발생시켜 삭제 불가 안내
+        log.warn("의료법 제23조에 따라 간호기록 삭제 불가 - noteId: {}", noteId);
+        throw new BusinessException(ErrorCode.MEDICAL_RECORD_CANNOT_BE_DELETED);
+
+        // 기존 삭제 코드 (주석 처리)
+        // nursingNoteRepository.delete(note);
+        // log.info("간호기록 삭제 완료 - id: {}", noteId);
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.mediflow.emr.repository;
 
+import com.mediflow.emr.entity.DepartmentEntity;
 import com.mediflow.emr.entity.Patient;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -30,6 +31,11 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
      * 부서와 입원 여부로 환자 목록 조회
      */
     List<Patient> findByDepartmentIdAndIsAdmitted(Long departmentId, Boolean isAdmitted);
+
+    /**
+     * 부서 엔티티와 입원 여부로 환자 목록 조회
+     */
+    List<Patient> findByDepartmentAndIsAdmitted(DepartmentEntity department, Boolean isAdmitted);
 
     /**
      * 차트번호 존재 여부 확인

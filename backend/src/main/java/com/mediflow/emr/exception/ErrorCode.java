@@ -43,7 +43,10 @@ public enum ErrorCode {
     MEDICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "medication record not found"),
 
     // 오더 관련 에러 코드
-    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "medical order not found");
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "medical order not found"),
+
+    // 의료 기록 보존 관련 에러 코드
+    MEDICAL_RECORD_CANNOT_BE_DELETED(HttpStatus.FORBIDDEN, "의료법 제23조에 따라 의료 기록은 10년간 보존해야 하므로 삭제할 수 없습니다");
 
     private final HttpStatus status;
     private final String defaultMessage;
