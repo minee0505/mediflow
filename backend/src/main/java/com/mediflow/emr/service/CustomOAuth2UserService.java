@@ -32,6 +32,7 @@ import java.util.Optional;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
+    private final DummyDataService dummyDataService;
 
     /**
      * OAuth2 공급자로부터 사용자 정보를 조회하고 동기화
@@ -83,13 +84,21 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             // 기존 사용자가 placeholder 이메일 상태이고, 이후 실제 이메일을 가져오게 된 경우 교체
             u.updateEmailIfPlaceholder(effectiveEmail, "@kakao.local");
             return u;
-        }).orElseGet(() -> User.builder()
-                .email(effectiveEmail)
-                .nickname(nickname)
-                .profileImageUrl(profileImageUrl)
-                .provider(provider)
-                .providerId(providerId)
-                .build());
+        }).orElseGet(() -> {
+            // 신규 사용자 생성
+            User newUser = User.builder()
+                    .email(effectiveEmail)
+                    .nickname(nickname)
+                    .profileImageUrl(profileImageUrl)
+                    .provider(provider)
+                    .providerId(providerId)
+                    .build();
+
+            // 저장 후 더미 데이터 적용
+            User savedUser = userRepository.save(newUser);
+            dummyDataService.applyDummyDataToNewUser(savedUser);
+            return savedUser;
+        });
 
         userRepository.save(user);
 
