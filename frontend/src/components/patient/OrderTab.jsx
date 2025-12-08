@@ -14,6 +14,14 @@ const OrderTab = ({ patientId }) => {
   const [filterStatus, setFilterStatus] = useState('ALL');
   const [loadingDrugInfo, setLoadingDrugInfo] = useState(false);
 
+  // 투약 등록 관련 상태
+  const [completedOrderId, setCompletedOrderId] = useState(null);
+  const [showMedicationForm, setShowMedicationForm] = useState(false);
+  const [medicationFormData, setMedicationFormData] = useState({
+    administeredAt: '',
+    notes: '',
+  });
+
   // 투약 경로 매핑
   const routeLabels = {
     PO: '경구',
@@ -84,6 +92,11 @@ const OrderTab = ({ patientId }) => {
     }
   };
 
+  // 완료 버튼 클릭 (투약 등록 버튼 표시)
+  const handleComplete = (orderId) => {
+    setCompletedOrderId(orderId);
+  };
+
   // 약품 상세 정보 보기
   const handleViewDrugInfo = async (order) => {
     setSelectedOrder(order);
@@ -112,6 +125,85 @@ const OrderTab = ({ patientId }) => {
         setLoadingDrugInfo(false);
       }
     }
+  };
+
+  // 현재 시간 가져오기
+  const getCurrentDateTime = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
+  // 투약 등록 버튼 클릭
+  const handleOpenMedicationForm = (order) => {
+    setSelectedOrder(order);
+    setMedicationFormData({
+      administeredAt: getCurrentDateTime(),
+      notes: '',
+    });
+    setShowMedicationForm(true);
+  };
+
+  // 투약 등록 폼 입력 변경
+  const handleMedicationFormChange = (e) => {
+    const { name, value } = e.target;
+    setMedicationFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // 투약 등록 제출
+  const handleMedicationSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+
+    if (!selectedOrder) return;
+
+    try {
+      const payload = {
+        patientId,
+        drugName: selectedOrder.orderName,
+        drugCode: null,
+        dose: selectedOrder.dose,
+        route: selectedOrder.route,
+        frequency: selectedOrder.frequency,
+        administeredAt: medicationFormData.administeredAt || null,
+        orderDoctor: selectedOrder.orderDoctor,
+        notes: medicationFormData.notes || null,
+      };
+
+      await apiClient.post('/medications', payload);
+
+      // 오더 상태를 COMPLETED로 변경
+      await handleStatusChange(selectedOrder.id, 'COMPLETED');
+
+      // 폼 닫기 및 상태 초기화
+      setShowMedicationForm(false);
+      setCompletedOrderId(null);
+      setSelectedOrder(null);
+      setMedicationFormData({
+        administeredAt: '',
+        notes: '',
+      });
+
+      alert('투약이 등록되었습니다.');
+    } catch (err) {
+      console.error('투약 등록 실패:', err);
+      setError(err.response?.data?.message || '투약 등록에 실패했습니다');
+    }
+  };
+
+  // 투약 등록 취소
+  const handleCancelMedicationForm = () => {
+    setShowMedicationForm(false);
+    setCompletedOrderId(null);
+    setSelectedOrder(null);
+    setMedicationFormData({
+      administeredAt: '',
+      notes: '',
+    });
   };
 
   // 시간 포맷
@@ -231,15 +323,23 @@ const OrderTab = ({ patientId }) => {
                     className={styles.startButton}
                     onClick={() => handleStatusChange(order.id, 'IN_PROGRESS')}
                   >
-                    시작
+                    투약 시작
                   </button>
                 )}
-                {order.status === 'IN_PROGRESS' && (
+                {order.status === 'IN_PROGRESS' && completedOrderId !== order.id && (
                   <button
                     className={styles.completeButton}
-                    onClick={() => handleStatusChange(order.id, 'COMPLETED')}
+                    onClick={() => handleComplete(order.id)}
                   >
                     완료
+                  </button>
+                )}
+                {completedOrderId === order.id && order.orderType === 'MEDICATION' && (
+                  <button
+                    className={styles.registerMedicationButton}
+                    onClick={() => handleOpenMedicationForm(order)}
+                  >
+                    투약 등록
                   </button>
                 )}
               </div>
@@ -313,6 +413,119 @@ const OrderTab = ({ patientId }) => {
               ) : (
                 <div className={styles.noInfo}>약품 상세 정보를 불러올 수 없습니다</div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 투약 등록 모달 */}
+      {showMedicationForm && selectedOrder && (
+        <div className={styles.modal} onClick={handleCancelMedicationForm}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3>투약 등록</h3>
+              <button className={styles.closeButton} onClick={handleCancelMedicationForm}>
+                ✕
+              </button>
+            </div>
+            <div className={styles.modalBody}>
+              <form onSubmit={handleMedicationSubmit}>
+                {/* 자동 입력 정보 (읽기 전용) */}
+                <div className={styles.formSection}>
+                  <h4>오더 정보</h4>
+                  <div className={styles.formGroup}>
+                    <label>약물명</label>
+                    <input
+                      type="text"
+                      value={selectedOrder.orderName || ''}
+                      readOnly
+                      className={styles.readOnlyInput}
+                    />
+                  </div>
+                  <div className={styles.formRow}>
+                    <div className={styles.formGroup}>
+                      <label>용량</label>
+                      <input
+                        type="text"
+                        value={selectedOrder.dose || '-'}
+                        readOnly
+                        className={styles.readOnlyInput}
+                      />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label>투약 경로</label>
+                      <input
+                        type="text"
+                        value={routeLabels[selectedOrder.route] || selectedOrder.route || '-'}
+                        readOnly
+                        className={styles.readOnlyInput}
+                      />
+                    </div>
+                  </div>
+                  <div className={styles.formRow}>
+                    <div className={styles.formGroup}>
+                      <label>빈도</label>
+                      <input
+                        type="text"
+                        value={selectedOrder.frequency || '-'}
+                        readOnly
+                        className={styles.readOnlyInput}
+                      />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label>처방 의사</label>
+                      <input
+                        type="text"
+                        value={selectedOrder.orderDoctor || '-'}
+                        readOnly
+                        className={styles.readOnlyInput}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 간호사 입력 정보 */}
+                <div className={styles.formSection}>
+                  <h4>투약 정보 입력</h4>
+                  <div className={styles.formGroup}>
+                    <label>투약 시간 *</label>
+                    <input
+                      type="datetime-local"
+                      name="administeredAt"
+                      value={medicationFormData.administeredAt}
+                      onChange={handleMedicationFormChange}
+                      max={getCurrentDateTime()}
+                      required
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label>특이사항</label>
+                    <textarea
+                      name="notes"
+                      value={medicationFormData.notes}
+                      onChange={handleMedicationFormChange}
+                      placeholder="투약 시 특이사항을 입력하세요"
+                      rows="4"
+                      className={styles.textarea}
+                    />
+                  </div>
+                </div>
+
+                {error && <div className={styles.error}>{error}</div>}
+
+                <div className={styles.formActions}>
+                  <button type="submit" className={styles.submitButton}>
+                    투약 등록
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.cancelButton}
+                    onClick={handleCancelMedicationForm}
+                  >
+                    취소
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
