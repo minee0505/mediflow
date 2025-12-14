@@ -1,6 +1,7 @@
 // 라우트 설정 - 데이터 방식 사용
 import { createBrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
+import LandingPage from './pages/LandingPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import EmailLoginPage from './pages/EmailLoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
@@ -15,6 +16,10 @@ import PublicRoute from './components/auth/PublicRoute.jsx';
 export const router = createBrowserRouter([
     {
         path: '/',
+        element: <LandingPage />,
+    },
+    {
+        path: '/auth/signin',
         element: (
             <PublicRoute>
                 <LoginPage />

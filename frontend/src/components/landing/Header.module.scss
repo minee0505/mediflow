@@ -1,0 +1,87 @@
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+.header {
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+
+    &:hover {
+        box-shadow: 0 2px 30px rgba(0, 0, 0, 0.08);
+    }
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.2rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    @include respond-to('tablet') {
+        padding: 1rem 1.5rem;
+    }
+
+    @include respond-to('mobile') {
+        padding: 0.8rem 1rem;
+    }
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logoText {
+    font-size: 1.8rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, $primary-color, $secondary-color);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.5px;
+
+    @include respond-to('mobile') {
+        font-size: 1.5rem;
+    }
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.loginButton {
+    padding: 0.75rem 2rem;
+    background: linear-gradient(135deg, $primary-color, $secondary-color);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba($primary-color, 0.3);
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba($primary-color, 0.4);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+
+    @include respond-to('mobile') {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.9rem;
+    }
+}
