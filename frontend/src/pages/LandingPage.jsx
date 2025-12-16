@@ -52,7 +52,7 @@ const LandingPage = () => {
                         <h1 className={styles.heroTitle}>
                             간호사의 실무 경험을 기반으로 설계된
                             <br />
-                            <span className={styles.highlight}>차세대 전자의무기록 시스템</span>
+                            <span className={styles.highlight}>차세대 전자의무기록 AI 시스템</span>
                         </h1>
                         <p className={styles.heroSubtitle}>
                             환자 정보 통합 대시보드와 AI 기반 인수인계 자동화로
